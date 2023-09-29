@@ -1,4 +1,5 @@
-//this is for testing the mimciking of the solenoid unit
+//this is for testing the mimciking of the solenoid unit opening and closing
+
 void setup() {
   // put your setup code here, to run once:
 
