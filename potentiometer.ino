@@ -1,5 +1,5 @@
 //This code is for testing the potentiometer and logging into to the console. An LED should turn on at 
-//a certain value
+//a certain value...
 void setup() {
   // put your setup code here, to run once:
 
