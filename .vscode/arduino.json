@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "potentiometer.ino",
+    "programmer": "avrisp"
+}
