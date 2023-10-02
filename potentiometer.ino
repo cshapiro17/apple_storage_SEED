@@ -10,7 +10,7 @@ static unsigned int state;
 static unsigned long time;
 int LED1 = 5;
 int LED2 = 6;
-int potent = 1; //placeholder
+int potent = A0; //placeholder
 int potValue;
 boolean solenoid;
 
@@ -27,18 +27,18 @@ void setup() {
 
 void loop() {
   // Initial stuff
-  switch state
-  {
+  switch(state){
     //Restart State
     case 1:
       //time = millis();
       state = 2;
+      Serial.print(state);
   
       break;
     
     //Sense State
     case 2:
-      Delay(1000);
+      delay(1000);
       potValue = analogRead(potent);
       state = 3;
 
@@ -54,6 +54,7 @@ void loop() {
     
     //Evaluate Value State
     case 4:
+      Serial.print(state);
       if(potValue>1000){
         digitalWrite(LED1,HIGH);
         digitalWrite(LED2,LOW);
@@ -68,24 +69,24 @@ void loop() {
         digitalWrite(LED1,LOW);
         digitalWrite(LED2,HIGH);
         solenoid = false;
+      
+        state = 5;
       }
-      state = 5;
-
       break;
     
     //Solenoid mimicking state (LEDs for now)
     case 5:
+      Serial.print(state);
       if(solenoid == true){
         //solenoid opens
         
       }
       else if(solenoid == false){
         //solenoid closes
-        
       }
       state = 2;
 
       break;
-    
+  }
 }
 
