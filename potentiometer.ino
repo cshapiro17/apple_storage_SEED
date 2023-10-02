@@ -3,22 +3,20 @@
 
 
 #include "Arduino.h"
-
-#define DELAY 30000 //milliseconds
+//#include "millisDelay.h"
 
 static unsigned int state;
 static unsigned long time;
 int LED1 = 5;
 int LED2 = 6;
-int potent = A0; //placeholder
-int potValue;
+int potent = A3; //placeholder
+int potValue = 0;
 boolean solenoid;
 
 void setup() {
   // pin classifications
   pinMode(LED1,OUTPUT);
   pinMode(LED2,OUTPUT);
-  pinMode(potent,INPUT);
 
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
   time = 0;
@@ -30,9 +28,8 @@ void loop() {
   switch(state){
     //Restart State
     case 1:
-      //time = millis();
       state = 2;
-      Serial.print(state);
+      Serial.println(state);
   
       break;
     
@@ -47,6 +44,7 @@ void loop() {
     //Log value State
     case 3:
       Serial.println("Potentiometer Value: " + potValue);
+      delay(1000);
       state = 4;
 
 
@@ -54,7 +52,7 @@ void loop() {
     
     //Evaluate Value State
     case 4:
-      Serial.print(state);
+      Serial.println(state);
       if(potValue>1000){
         digitalWrite(LED1,HIGH);
         digitalWrite(LED2,LOW);
@@ -69,14 +67,13 @@ void loop() {
         digitalWrite(LED1,LOW);
         digitalWrite(LED2,HIGH);
         solenoid = false;
-      
-        state = 5;
       }
+      state = 5;
       break;
     
     //Solenoid mimicking state (LEDs for now)
     case 5:
-      Serial.print(state);
+      Serial.println(state);
       if(solenoid == true){
         //solenoid opens
         
