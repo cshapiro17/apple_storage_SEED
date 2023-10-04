@@ -10,9 +10,13 @@ static unsigned long time;
 int LED1 = 5;                 //LED1 digital output pin
 int LED2 = 6;                 //LED2 digital output pin
 int potent = A3;              //input analog pin for potentiometer
-int potValue = 0;
-boolean solenoid;
+int solenoidPin = 4;            //solenoid input pin
+int potValue;             
 
+int highLevel;                //high level for sensing
+int lowLevel;                 //low level for sensing
+boolean solenoid;
+boolean newData = false;
 void setup() {
   // pin classifications
   pinMode(LED1,OUTPUT);
@@ -26,14 +30,30 @@ void loop() {
   switch(state){
     //Restart State
     case 1:
-      Serial.println(state);
+      //Serial.println(state);
+      
+//      Serial.println("High Margin: ");
+//      while (Serial.available() == 0) {
+//      }
+//      highLevel = Serial.parseInt();
+//      delay(1000);
+//      
+//      Serial.println("Low Margin: ");
+//      while (Serial.available() == 0 && newData == false) {
+//        Serial.println("1");
+//        newData = true;
+//      }
+//      lowLevel = Serial.parseInt();
+      highLevel = 600;
+      lowLevel = 300;
+      delay(1000);
       state = 2;
   
       break;
     
     //Sense State
     case 2:
-      delay(1000);
+      delay(500);
       Serial.println(state);
       potValue = analogRead(potent);
       //Serial.println(potValue);
@@ -53,12 +73,12 @@ void loop() {
     //Evaluate Value State
     case 4:
       Serial.println(state);
-      if(potValue>700){
+      if(potValue>highLevel){
         digitalWrite(LED1,HIGH);
         digitalWrite(LED2,LOW);
         solenoid = true;
       }
-      else if(potValue<400){
+      else if(potValue<lowLevel){
         digitalWrite(LED1,LOW);
         digitalWrite(LED2,HIGH);
         solenoid = true;
@@ -68,19 +88,22 @@ void loop() {
         digitalWrite(LED2,HIGH);
         solenoid = false;
       }
+      
       state = 5;
       break;
     
     //Solenoid mimicking state (LEDs for now)
     case 5:
-      Serial.println(state);
+      //open or close solenoid depending on state of potentiometer
       if(solenoid == true){
-        //solenoid opens
-        
+        digitalWrite(solenoidPin,HIGH);
+        Serial.println("Solenoid Open");
       }
-      else if(solenoid == false){
-        //solenoid closes
+      else{
+        digitalWrite(solenoidPin,LOW);
+        Serial.println("Solenoid Closed");
       }
+      delay(500);
       state = 2;
 
       break;
