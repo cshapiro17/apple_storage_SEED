@@ -37,7 +37,7 @@ void loop() {
     //Restart State
     case 1:
       Serial.println("Startup");
-      Serial.println("Room/tValue");    
+      Serial.println("Room\tValue");    
 //      Serial.println("High Margin: ");
 //      while (Serial.available() == 0) {
 //      }
@@ -98,7 +98,7 @@ void loop() {
 
 void logValue(int room, int potValue){
   Serial.print(room);
-  Serial.print("/t");
+  Serial.print("\t");
   Serial.print(potValue);
 }
 
@@ -107,12 +107,12 @@ void logValue(int room, int potValue){
 void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
         digitalWrite(solenoidPin,HIGH);
-        Serial.print("Solenoid Open in room ");
+        //Serial.print("Solenoid Open in room ");
         Serial.println(room);
       }
   else{
     digitalWrite(solenoidPin,LOW);
-    Serial.print("Solenoid Closed in room ");
+    //Serial.print("Solenoid Closed in room ");
         Serial.println(room);
   }
   delay(500);
@@ -125,7 +125,7 @@ void solenoidChange(boolean solenoid,int room, int solenoidPin){
  */
 boolean evaluateSensor(int potValue, int highLevel, int lowLevel, int LEDA, int LEDB){
   boolean solenoid;
-  Serial.println("Evaluating Potentiometer Value");
+  //Serial.println("Evaluating Potentiometer Value");
   if(potValue>highLevel){
     digitalWrite(LEDA,HIGH);
     digitalWrite(LEDB,LOW);
