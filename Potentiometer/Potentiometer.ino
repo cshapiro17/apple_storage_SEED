@@ -63,7 +63,7 @@ void loop() {
     //Sense State
     case 2:
       delay(500);
-      Serial.println("Reading Potentiometer Value:");
+      //Serial.println("Reading Potentiometer Value:");
       potValue1 = analogRead(potent1);
       //potValue2 = analogRead(potent2);
       //Serial.println(potValue);
@@ -75,7 +75,7 @@ void loop() {
       //Serial.println(potValue1);
       //delay(1000);
       logValue(room1,potValue1);
-      logValue(room2,potValue2);
+      //logValue(room2,potValue2);
       state = 4;
       break;
     
@@ -99,7 +99,7 @@ void loop() {
 void logValue(int room, int potValue){
   Serial.print(room);
   Serial.print("\t");
-  Serial.print(potValue);
+  Serial.println(potValue);
 }
 
 
@@ -108,12 +108,12 @@ void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
         digitalWrite(solenoidPin,HIGH);
         //Serial.print("Solenoid Open in room ");
-        Serial.println(room);
+        //Serial.println(room);
       }
   else{
     digitalWrite(solenoidPin,LOW);
     //Serial.print("Solenoid Closed in room ");
-        Serial.println(room);
+        //Serial.println(room);
   }
   delay(500);
 }
