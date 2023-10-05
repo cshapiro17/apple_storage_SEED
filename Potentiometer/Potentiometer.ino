@@ -9,8 +9,8 @@ static unsigned int state;
 static unsigned long time;
 int LED1 = 5;                 //LED1 digital output pin
 int LED2 = 6;                 //LED2 digital output pin
-int LED3;
-int LED4;
+int LED3 = 7;
+int LED4 = 8;
 int potent1 = A0;              //input analog pin for potentiometer
 int potent2 = A1;
 int solenoidPin1 = 4;          //solenoid input pin
@@ -27,6 +27,8 @@ void setup() {
   // pin classifications
   pinMode(LED1,OUTPUT);
   pinMode(LED2,OUTPUT);
+  pinMode(LED3,OUTPUT);
+  pinMode(LED4,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
   state = 1;
 }
@@ -65,7 +67,7 @@ void loop() {
       delay(500);
       //Serial.println("Reading Potentiometer Value:");
       potValue1 = analogRead(potent1);
-      //potValue2 = analogRead(potent2);
+      potValue2 = analogRead(potent2);
       //Serial.println(potValue);
       state = 3;
       break;
@@ -75,14 +77,14 @@ void loop() {
       //Serial.println(potValue1);
       //delay(1000);
       logValue(room1,potValue1);
-      //logValue(room2,potValue2);
+      logValue(room2,potValue2);
       state = 4;
       break;
     
     //Evaluate Value State
     case 4:
       solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,LED1,LED2);
-      //solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,LED3,LED4);      
+      solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,LED3,LED4);      
       state = 5;
       break;
     
