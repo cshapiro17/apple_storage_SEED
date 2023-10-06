@@ -14,6 +14,7 @@ int LED4 = 8;                 //LED4 digital output pin
 int potent1 = A0;             //input analog pin for potentiometer 1
 int potent2 = A1;             //input analog pin for potentiometer 2
 int solenoidPin1 = 4;         //solenoid 1 input pin
+int solenoidPin2 = 3;         //solenoid 1 input pin
 int room1;
 int room2;
 int highLevel;                //high level for sensing
@@ -30,6 +31,7 @@ void setup() {
   pinMode(LED3,OUTPUT);
   pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
+  pinMode(solenoidPin2,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
   state = 1;
 }
@@ -41,18 +43,19 @@ void loop() {
     case 1:
       //Serial.println("Startup");
       //Serial.println("Room\tValue");    
-//      Serial.println("High Margin: ");
-//      while (Serial.available() == 0) {
-//      }
-//      highLevel = Serial.parseInt();
-//      delay(1000);
-//      
-//      Serial.println("Low Margin: ");
-//      while (Serial.available() == 0 && newData == false) {
-//        Serial.println("1");
-//        newData = true;
-//      }
-//      lowLevel = Serial.parseInt();
+    //  Serial.println("High Margin: ");
+    //  while (Serial.available() == 0) {
+    //   delay(100);
+    //  }
+    //  highLevel = Serial.parseInt();
+    //  delay(1000);
+     
+    //  Serial.println("Low Margin: ");
+    //  while (Serial.available() == 0 && newData == false) {
+    //    Serial.println("1");
+    //    newData = true;
+    //  }
+    //  lowLevel = Serial.parseInt();
 
       highLevel = 700;
       lowLevel = 300;
@@ -65,7 +68,7 @@ void loop() {
     
     //Sense State
     case 2:
-      delay(2000);
+      delay(1000);
       //Serial.println("Reading Potentiometer Value:");
       potValue1 = analogRead(potent1);
       potValue2 = analogRead(potent2);
@@ -114,7 +117,6 @@ void logValue(int room, int potValue){
 void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
     digitalWrite(solenoidPin,HIGH);
-    Serial.println("Sol1 true");
   }
   else{
     digitalWrite(solenoidPin,LOW);

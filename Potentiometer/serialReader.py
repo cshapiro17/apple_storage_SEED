@@ -9,7 +9,7 @@ with open('data.csv', 'w', newline='') as file:
     csv_writer = csv.writer(file)
 
     # Write a header row if needed
-    csv_writer.writerow(['Room', 'Potent Value', ...])  # Add column headers as needed
+    csv_writer.writerow(['Room', 'Potent Value'])  # Add column headers as needed
 
     while True:
         data = ser.readline().decode().strip()
@@ -17,3 +17,5 @@ with open('data.csv', 'w', newline='') as file:
             data_list = data.split(',')  # Assuming data is comma-separated
             csv_writer.writerow(data_list)
             print(data)  # Optional: print the data to the console
+
+file.close()
