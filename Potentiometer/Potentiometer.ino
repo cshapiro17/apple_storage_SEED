@@ -29,6 +29,7 @@ void setup() {
   pinMode(LED2,OUTPUT);
   pinMode(LED3,OUTPUT);
   pinMode(LED4,OUTPUT);
+  pinMode(solenoidPin1,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
   state = 1;
 }
@@ -53,7 +54,7 @@ void loop() {
 //      }
 //      lowLevel = Serial.parseInt();
 
-      highLevel = 600;
+      highLevel = 700;
       lowLevel = 300;
       room1 = 1;
       room2 = 2;
@@ -64,7 +65,7 @@ void loop() {
     
     //Sense State
     case 2:
-      delay(500);
+      delay(2000);
       //Serial.println("Reading Potentiometer Value:");
       potValue1 = analogRead(potent1);
       potValue2 = analogRead(potent2);
@@ -77,14 +78,14 @@ void loop() {
       //Serial.println(potValue1);
       //delay(1000);
       logValue(room1,potValue1);
-      logValue(room2,potValue2);
+      //logValue(room2,potValue2);
       state = 4;
       break;
     
     //Evaluate Value State
     case 4:
-      solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,LED1,LED2);
-      solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,LED3,LED4);      
+      solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
+      //solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,LED3,LED4);      
       state = 5;
       break;
     
@@ -99,6 +100,10 @@ void loop() {
 
 
 void logValue(int room, int potValue){
+  //Serial.print(now.hour());
+  //Serial.print(":");
+  //Serial.print(now.minute());
+  //Serial.print("\t");
   Serial.print(room);
   Serial.print(",");
   Serial.println(potValue);
@@ -108,14 +113,11 @@ void logValue(int room, int potValue){
 //this function takes in a boolean to see if the solenoid should be open or closed, which room to mimick, and which pin that solenoid changes.
 void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
-        digitalWrite(solenoidPin,HIGH);
-        //Serial.print("Solenoid Open in room ");
-        //Serial.println(room);
-      }
+    digitalWrite(solenoidPin,HIGH);
+    Serial.println("Sol1 true");
+  }
   else{
     digitalWrite(solenoidPin,LOW);
-    //Serial.print("Solenoid Closed in room ");
-        //Serial.println(room);
   }
   delay(500);
 }
@@ -125,23 +127,33 @@ void solenoidChange(boolean solenoid,int room, int solenoidPin){
  * Inputs: potentiometer value, high level threshold, low level threshold, 2 LEDs to mimick
  * Output: Boolean true or false to mimick solenoid 
  */
-boolean evaluateSensor(int potValue, int highLevel, int lowLevel, int LEDA, int LEDB){
-  boolean solenoid;
+boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previousSolenoid, int LEDA, int LEDB){
+  boolean solenoid = previousSolenoid;
+  int highMargin = 550;       //high level it has to come back to in order to close valve
+  int lowMargin = 450;        //low level it has to come back to in order to close valve
+
   //Serial.println("Evaluating Potentiometer Value");
   if(potValue>highLevel){
     digitalWrite(LEDA,HIGH);
     digitalWrite(LEDB,LOW);
+    Serial.println("S1");
     solenoid = true;
   }
   else if(potValue<lowLevel){
     digitalWrite(LEDA,LOW);
     digitalWrite(LEDB,HIGH);
+    Serial.println("S2");
     solenoid = true;
   }
-  else{
+  else if(potValue<highMargin && potValue>lowMargin){
     digitalWrite(LEDA,HIGH);
     digitalWrite(LEDB,HIGH);
+    Serial.println("S3");
     solenoid = false;
+  }
+  else{
+    Serial.println("S4");
+    return previousSolenoid;
   }
   return solenoid;
 }
