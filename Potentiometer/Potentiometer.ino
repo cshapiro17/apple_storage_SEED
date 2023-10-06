@@ -9,11 +9,11 @@ static unsigned int state;
 static unsigned long time;
 int LED1 = 5;                 //LED1 digital output pin
 int LED2 = 6;                 //LED2 digital output pin
-int LED3 = 7;
-int LED4 = 8;
-int potent1 = A0;              //input analog pin for potentiometer
-int potent2 = A1;
-int solenoidPin1 = 4;          //solenoid input pin
+int LED3 = 7;                 //LED3 digital output pin
+int LED4 = 8;                 //LED4 digital output pin
+int potent1 = A0;             //input analog pin for potentiometer 1
+int potent2 = A1;             //input analog pin for potentiometer 2
+int solenoidPin1 = 4;         //solenoid 1 input pin
 int room1;
 int room2;
 int highLevel;                //high level for sensing
@@ -38,8 +38,8 @@ void loop() {
   switch(state){
     //Restart State
     case 1:
-      Serial.println("Startup");
-      Serial.println("Room\tValue");    
+      //Serial.println("Startup");
+      //Serial.println("Room\tValue");    
 //      Serial.println("High Margin: ");
 //      while (Serial.available() == 0) {
 //      }
@@ -100,7 +100,7 @@ void loop() {
 
 void logValue(int room, int potValue){
   Serial.print(room);
-  Serial.print("\t");
+  Serial.print(",");
   Serial.println(potValue);
 }
 
