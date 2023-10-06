@@ -78,21 +78,21 @@ void loop() {
       //Serial.println(potValue1);
       //delay(1000);
       logValue(room1,potValue1);
-      //logValue(room2,potValue2);
+      logValue(room2,potValue2);
       state = 4;
       break;
     
     //Evaluate Value State
     case 4:
       solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
-      //solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,LED3,LED4);      
+      solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,solenoid2,LED3,LED4);      
       state = 5;
       break;
     
     //Solenoid mimicking state
     case 5:      
       solenoidChange(solenoid1,room1,solenoidPin1);
-      //solenoidChange(solenoid2,room2,solenoidPin2);
+      solenoidChange(solenoid2,room2,solenoidPin2);
       state = 2;
       break;
   }
@@ -136,23 +136,19 @@ boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previo
   if(potValue>highLevel){
     digitalWrite(LEDA,HIGH);
     digitalWrite(LEDB,LOW);
-    Serial.println("S1");
     solenoid = true;
   }
   else if(potValue<lowLevel){
     digitalWrite(LEDA,LOW);
     digitalWrite(LEDB,HIGH);
-    Serial.println("S2");
     solenoid = true;
   }
   else if(potValue<highMargin && potValue>lowMargin){
     digitalWrite(LEDA,HIGH);
     digitalWrite(LEDB,HIGH);
-    Serial.println("S3");
     solenoid = false;
   }
   else{
-    Serial.println("S4");
     return previousSolenoid;
   }
   return solenoid;
