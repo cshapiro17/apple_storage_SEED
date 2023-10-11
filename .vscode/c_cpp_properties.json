@@ -24,7 +24,11 @@
                 "${workspaceFolder}\\arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7\\avr\\include"
             ],
             "forcedInclude": [
+<<<<<<< HEAD
                 "${workspaceRoot}\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\cores\\arduino\\Arduino.h"
+=======
+                "${workspaceFolder}\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\cores\\arduino\\Arduino.h"
+>>>>>>> b96e8582d127ca3867ba803373178a343338a3d5
             ],
             "cStandard": "c11",
             "cppStandard": "c++11",
