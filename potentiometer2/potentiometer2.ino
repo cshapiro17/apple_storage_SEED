@@ -5,7 +5,7 @@
 #include "MillisTimerLib.h"
 
 unsigned long previousMillis = 0;
-int interval = 10000;
+int interval = 5000;
 
 static unsigned int state;
 static unsigned long time;
@@ -33,7 +33,7 @@ void setup() {
   pinMode(LED3,OUTPUT);
   pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
-  //pinMode(solenoidPin2,OUTPUT);
+  pinMode(solenoidPin2,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
   delay(500);
   state = 1;
@@ -108,10 +108,24 @@ void logValue(int room, int potValue){
 //which room to mimick, and which pin that solenoid changes.
 void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
+    if(!digitalRead(solenoidPin)){
+    Serial.print("Room ");
+    Serial.print(room);
+    Serial.println("open");
+    delay(10);
+    }
     digitalWrite(solenoidPin,HIGH);
+    
   }
   else{
+    if(digitalRead(solenoidPin)){
+      Serial.print("Room ");
+      Serial.print(room);
+      Serial.println("closed");
+      delay(10);
+    }
     digitalWrite(solenoidPin,LOW);
+
   }
   delay(500);
 }
