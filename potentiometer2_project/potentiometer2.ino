@@ -1,10 +1,11 @@
-//This code is for testing the potentiometer and logging into to the console. Two LEDs are used, turning on for different potentiometer
-//input values. Pins and values can be changed as this is preliminary code
-
+//This is an extension of potentiometer.ino This senses for X amount of time 
+//before sensing again
 
 //#include "Arduino.h"
-//#include "millisDelay.h"
 #include "MillisTimerLib.h"
+
+unsigned long previousMillis = 0;
+int interval = 10000;
 
 static unsigned int state;
 static unsigned long time;
@@ -29,35 +30,22 @@ void setup() {
   // pin classifications
   pinMode(LED1,OUTPUT);
   pinMode(LED2,OUTPUT);
-  pinMode(LED3,OUTPUT);
-  pinMode(LED4,OUTPUT);
+  //pinMode(LED3,OUTPUT);
+  //pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
-  pinMode(solenoidPin2,OUTPUT);
+  //pinMode(solenoidPin2,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
+  delay(500);
   state = 1;
 }
 
 void loop() {
+  unsigned long currentMillis = millis();
+
   // Initial stuff
   switch(state){
     //Restart State
     case 1:
-      //Serial.println("Startup");
-      //Serial.println("Room\tValue");    
-    //  Serial.println("High Margin: ");
-    //  while (Serial.available() == 0) {
-    //   delay(100);
-    //  }
-    //  highLevel = Serial.parseInt();
-    //  delay(1000);
-     
-    //  Serial.println("Low Margin: ");
-    //  while (Serial.available() == 0 && newData == false) {
-    //    Serial.println("1");
-    //    newData = true;
-    //  }
-    //  lowLevel = Serial.parseInt();
-
       highLevel = 700;
       lowLevel = 300;
       room1 = 1;
@@ -81,9 +69,11 @@ void loop() {
     case 3:
       //Serial.println(potValue1);
       //delay(1000);
-      logValue(room1,potValue1);
-      logValue(room2,potValue2);
-      state = 4;
+      if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+        logValue(room1,potValue1);
+        logValue(room2,potValue2);
+        state = 4;
+      }
       break;
     
     //Evaluate Value State

@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
     "port": "COM5",
-    "sketch": "solenoid\\solenoid.ino"
+    "sketch": "potentiometer\\potentiometer.ino"
 }
