@@ -30,8 +30,8 @@ void setup() {
   // pin classifications
   pinMode(LED1,OUTPUT);
   pinMode(LED2,OUTPUT);
-  //pinMode(LED3,OUTPUT);
-  //pinMode(LED4,OUTPUT);
+  pinMode(LED3,OUTPUT);
+  pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
   //pinMode(solenoidPin2,OUTPUT);
   Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
@@ -57,23 +57,23 @@ void loop() {
     
     //Sense State
     case 2:
-      delay(1000);
       //Serial.println("Reading Potentiometer Value:");
+      if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+      previousMillis = currentMillis;
       potValue1 = analogRead(potent1);
       potValue2 = analogRead(potent2);
       //Serial.println(potValue);
       state = 3;
+      }
       break;
     
     //Log value State
     case 3:
       //Serial.println(potValue1);
       //delay(1000);
-      if ((unsigned long)(currentMillis - previousMillis) >= interval) {
-        logValue(room1,potValue1);
-        logValue(room2,potValue2);
-        state = 4;
-      }
+      logValue(room1,potValue1);
+      logValue(room2,potValue2);
+      state = 4;
       break;
     
     //Evaluate Value State
@@ -104,7 +104,8 @@ void logValue(int room, int potValue){
 }
 
 
-//this function takes in a boolean to see if the solenoid should be open or closed, which room to mimick, and which pin that solenoid changes.
+//this function takes in a boolean to see if the solenoid should be open or closed, 
+//which room to mimick, and which pin that solenoid changes.
 void solenoidChange(boolean solenoid,int room, int solenoidPin){
   if(solenoid == true){
     digitalWrite(solenoidPin,HIGH);
