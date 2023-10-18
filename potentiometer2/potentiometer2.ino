@@ -5,7 +5,7 @@
 #include "MillisTimerLib.h"
 
 unsigned long previousMillis = 0;
-int interval = 5000;
+int interval = 1000;
 
 static unsigned int state;
 static unsigned long time;
@@ -125,7 +125,6 @@ void solenoidChange(boolean solenoid,int room, int solenoidPin){
       delay(10);
     }
     digitalWrite(solenoidPin,LOW);
-
   }
   delay(500);
 }
