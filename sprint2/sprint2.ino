@@ -24,11 +24,15 @@ int pump1 = 2;                //pump 1 output pin
 //Global Variables
 //**************************************
 unsigned long previousMillis = 0;
-int interval = 1000;
-static unsigned int state;
-int potValue1;
+int interval = 10000;          //interval for state 2 delay
+int interval2 = 10000;         //interval for state 3 delay
+static unsigned int state;    //state variable
+int potValue1;                //analog potentiometer value
 boolean solenoid1;
-
+int room1 = 1;                //room number
+int highLevel = 600;          //high level threshold
+int lowLevel = 400;           //low level threshold
+boolean pumpOnOff;
 
 void setup() {
   // pin classifications
@@ -58,25 +62,26 @@ void loop(){
     
     //pump in air state (open solenoid, turn on pump for X amount of time)
     case 2:
-      if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+      if ((unsigned long)(currentMillis - previousMillis) >= interval){
+        pumpOnOff = true;
+        pumpChange(pumpOnOff,room1,pump1);
         previousMillis = currentMillis;
-        digitalWrite(solenoidPin1,HIGH);
-        digitalWrite(pump1,HIGH);
         state = 3;
       }
     break;
 
-
     //wait for pump to fill room
     case 3:
-
+      if ((unsigned long)(currentMillis - previousMillis) >= interval2) {
+        state = 4;
+        previousMillis = currentMillis;
+      }
     break;
 
 
     //turn off pump and solenoid
     case 4:
-      digitalWrite(solenoidPin1,LOW);
-      digitalWrite(pump1,LOW);
+      pumpChange(false,room1,pump1);
     break;
 
 
@@ -99,15 +104,19 @@ void loop(){
 
         //if value still outside of spec, keep room open or open room
         if(solenoid1){
-          state = 8
+          state = 8;
         }
         //if value within spec/back to middle, close room
         else{
           state = 9;
         }
 
-    //(OPTION 1) open room state
-
+    //(OPTION 1) mimick room state
+    case 8:
+      solenoidChange(solenoid1,room1,solenoidPin1);
+      previousMillis = currentMillis;
+      state = 2;
+    break;
 
     //(OPTION 2) close room state
   }
@@ -144,4 +153,52 @@ boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previo
     return previousSolenoid;
   }
   return solenoid;
+}
+
+
+//this function takes in a boolean to see if the solenoid should be open or closed, 
+//which room to mimick, and which pin that solenoid changes.
+void solenoidChange(boolean solenoid,int room, int solenoidPin){
+  if(solenoid == true){
+    if(!digitalRead(solenoidPin)){
+    Serial.print("Room ");
+    Serial.print(room);
+    Serial.println(" open");
+    delay(10);
+    }
+    digitalWrite(solenoidPin,HIGH);
+    
+  }
+  else{
+    if(digitalRead(solenoidPin)){
+      Serial.print("Room ");
+      Serial.print(room);
+      Serial.println(" closed");
+      delay(10);
+    }
+    digitalWrite(solenoidPin,LOW);
+  }
+  delay(500);
+}
+
+
+void pumpChange(boolean pumpSwitch, int room, int pumpPin){
+  if(pumpSwitch){
+    digitalWrite(pumpPin,HIGH);
+    Serial.print("pump ");
+    Serial.print(room);
+    Serial.println(" on");
+    delay(10);
+  }
+  else{
+    digitalWrite(pumpPin,LOW);
+    Serial.print("pump ");
+    Serial.print(room);
+    Serial.println(" off");
+    delay(10);
+  }
+}
+
+void stateDisplay(int state){
+
 }
