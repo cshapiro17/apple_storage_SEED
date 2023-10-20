@@ -1,5 +1,19 @@
 //Code for sprint 2 goal -- mimicking air through a pump into a enclosed environment to test it
 
+#include "Arduino_LED_Matrix.h"
+#include "MillisTimerLib.h"
+ArduinoLEDMatrix matrix;
+
+uint8_t frame[8][12] = {
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
 
 //**************************************
 //INPUTS
@@ -36,13 +50,16 @@ boolean pumpOnOff;
 
 void setup() {
   // pin classifications
-  pinMode(LED1,OUTPUT);
-  pinMode(LED2,OUTPUT);
-  pinMode(LED3,OUTPUT);
-  pinMode(LED4,OUTPUT);
+  // pinMode(LED1,OUTPUT);
+  // pinMode(LED2,OUTPUT);
+  // pinMode(LED3,OUTPUT);
+  // pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
   pinMode(solenoidPin2,OUTPUT);
-  Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
+  pinMode(pump1,OUTPUT);
+  pinMode(potent1,INPUT);
+  Serial.begin(115200);
+  matrix.begin();
   delay(500);
   state = 1;
 }
@@ -50,10 +67,10 @@ void setup() {
 
 void loop(){
   unsigned long currentMillis = millis();
+  stateDisplay(state);
+  matrix.renderBitmap(frame, 8, 12);
 
   switch(state){
-
-  
     //reset state
     case 1:
       delay(1000);
@@ -82,6 +99,7 @@ void loop(){
     //turn off pump and solenoid
     case 4:
       pumpChange(false,room1,pump1);
+      state = 5;
     break;
 
 
@@ -100,7 +118,7 @@ void loop(){
 
     //Evaluate state of room 
     case 7:
-        solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
+        solenoid1 = evaluateSensor(room1,potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
 
         //if value still outside of spec, keep room open or open room
         if(solenoid1){
@@ -108,7 +126,7 @@ void loop(){
         }
         //if value within spec/back to middle, close room
         else{
-          state = 9;
+          state = 8;
         }
 
     //(OPTION 1) mimick room state
@@ -120,39 +138,6 @@ void loop(){
 
     //(OPTION 2) close room state
   }
-}
-
-
-/*evaluateSensor is used to measure the value of the potentiometer and determine if a
- * solenoid should be changed or not.
- * Inputs: potentiometer value, high level threshold, low level threshold, 2 LEDs to mimick
- * Output: Boolean true or false to mimick solenoid 
- */
-boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previousSolenoid, int LEDA, int LEDB){
-  boolean solenoid = previousSolenoid;
-  int highMargin = 550;       //high level it has to come back to in order to close valve
-  int lowMargin = 450;        //low level it has to come back to in order to close valve
-
-  //Serial.println("Evaluating Potentiometer Value");
-  if(potValue>highLevel){
-    digitalWrite(LEDA,HIGH);
-    digitalWrite(LEDB,LOW);
-    solenoid = true;
-  }
-  else if(potValue<lowLevel){
-    digitalWrite(LEDA,LOW);
-    digitalWrite(LEDB,HIGH);
-    solenoid = true;
-  }
-  else if(potValue<highMargin && potValue>lowMargin){
-    digitalWrite(LEDA,HIGH);
-    digitalWrite(LEDB,HIGH);
-    solenoid = false;
-  }
-  else{
-    return previousSolenoid;
-  }
-  return solenoid;
 }
 
 
@@ -199,6 +184,51 @@ void pumpChange(boolean pumpSwitch, int room, int pumpPin){
   }
 }
 
-void stateDisplay(int state){
-
+/*These functions are for displaying different variables on the onboard LED matrix for the
+* Arduino R4 Wifi
+*/
+void roomDisplay(int room, int LEDA, int LEDB){
+  for (int i = 0; i < 12; i++) {
+    frame[8-room][i] = 0;
+  }
+  frame[8-room][0] = LEDA;
+  frame[8-room][1] = LEDB;
 }
+
+void stateDisplay(int state){
+  for (int i = 0; i < 12; i++) {
+    frame[0][i] = 0;
+  }
+  frame[0][state-1] = 1;
+}
+
+/*evaluateSensor is used to measure the value of the potentiometer and determine if a
+ * solenoid should be changed or not.
+ * Inputs: potentiometer value, high level threshold, low level threshold, 2 LEDs to mimick
+ * Output: Boolean true or false to mimick solenoid 
+ */
+boolean evaluateSensor(int room, int potValue, int highLevel, int lowLevel, boolean previousSolenoid, int LEDA, int LEDB){
+  boolean solenoid = previousSolenoid;
+  int highMargin = 550;       //high level it has to come back to in order to close valve
+  int lowMargin = 450;        //low level it has to come back to in order to close valve
+
+  //Serial.println("Evaluating Potentiometer Value");
+  if(potValue>highLevel){
+    roomDisplay(room,1,0);
+    solenoid = true;
+  }
+  else if(potValue<lowLevel){
+    roomDisplay(room,0,1);
+    solenoid = true;
+  }
+  else if(potValue<highMargin && potValue>lowMargin){
+    roomDisplay(room,1,1);
+    solenoid = false;
+  }
+  else{
+    return previousSolenoid;
+  }
+  return solenoid;
+}
+
+

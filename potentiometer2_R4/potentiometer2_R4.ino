@@ -94,8 +94,8 @@ void loop() {
     
     //Evaluate Value State
     case 4:
-      solenoid1 = evaluateSensor(potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
-      solenoid2 = evaluateSensor(potValue2,highLevel,lowLevel,solenoid2,LED3,LED4);      
+      solenoid1 = evaluateSensor(room1,potValue1,highLevel,lowLevel,solenoid1,LED1,LED2);
+      solenoid2 = evaluateSensor(room2,potValue2,highLevel,lowLevel,solenoid2,LED3,LED4);      
       state = 5;
       break;
     
@@ -145,30 +145,35 @@ void solenoidChange(boolean solenoid,int room, int solenoidPin){
   delay(500);
 }
 
+void roomDisplay(int room, int LEDA, int LEDB){
+  for (int i = 0; i < 12; i++) {
+    frame[8-room][i] = 0;
+  }
+  frame[8-room][0] = LEDA;
+  frame[8-room][1] = LEDB;
+}
+
 /*evaluateSensor is used to measure the value of the potentiometer and determine if a
  * solenoid should be changed or not.
  * Inputs: potentiometer value, high level threshold, low level threshold, 2 LEDs to mimick
  * Output: Boolean true or false to mimick solenoid 
  */
-boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previousSolenoid, int LEDA, int LEDB){
+boolean evaluateSensor(int room, int potValue, int highLevel, int lowLevel, boolean previousSolenoid, int LEDA, int LEDB){
   boolean solenoid = previousSolenoid;
   int highMargin = 550;       //high level it has to come back to in order to close valve
   int lowMargin = 450;        //low level it has to come back to in order to close valve
 
   //Serial.println("Evaluating Potentiometer Value");
   if(potValue>highLevel){
-    digitalWrite(LEDA,HIGH);
-    digitalWrite(LEDB,LOW);
+    roomDisplay(room,1,0);
     solenoid = true;
   }
   else if(potValue<lowLevel){
-    digitalWrite(LEDA,LOW);
-    digitalWrite(LEDB,HIGH);
+    roomDisplay(room,0,1);
     solenoid = true;
   }
   else if(potValue<highMargin && potValue>lowMargin){
-    digitalWrite(LEDA,HIGH);
-    digitalWrite(LEDB,HIGH);
+    roomDisplay(room,1,1);
     solenoid = false;
   }
   else{
