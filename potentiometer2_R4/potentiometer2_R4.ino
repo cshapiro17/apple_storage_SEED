@@ -2,12 +2,26 @@
 //before sensing again
 
 //#include "Arduino.h"
+#include "Arduino_LED_Matrix.h"
+#include "MillisTimerLib.h"
+ArduinoLEDMatrix matrix;
+
+uint8_t frame[8][12] = {
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
 
 unsigned long previousMillis = 0;
 int interval = 1000;
 
 static unsigned int state;
-static unsigned long time;
+//static unsigned long time;
 int LED1 = 5;                 //LED1 digital output pin
 int LED2 = 6;                 //LED2 digital output pin
 int LED3 = 7;                 //LED3 digital output pin
@@ -33,13 +47,16 @@ void setup() {
   pinMode(LED4,OUTPUT);
   pinMode(solenoidPin1,OUTPUT);
   pinMode(solenoidPin2,OUTPUT);
-  Serial.begin(9600); //Initialize serial communication with a baud rate of 9600
+  Serial.begin(115200);
+  matrix.begin();
   delay(500);
   state = 1;
 }
 
 void loop() {
   unsigned long currentMillis = millis();
+  stateDisplay(state);
+  matrix.renderBitmap(frame, 8, 12);
 
   // Initial stuff
   switch(state){
@@ -158,4 +175,11 @@ boolean evaluateSensor(int potValue, int highLevel, int lowLevel, boolean previo
     return previousSolenoid;
   }
   return solenoid;
+}
+
+void stateDisplay(int state){
+  for (int i = 0; i < 12; i++) {
+    frame[0][i] = 0;
+  }
+  frame[0][state-1] = 1;
 }

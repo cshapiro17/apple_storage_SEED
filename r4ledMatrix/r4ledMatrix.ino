@@ -34,5 +34,5 @@ void stateDisplay(int state){
   for (int i = 0; i < 12; i++) {
     frame[0][i] = 0;
   }
-  frame[state-1][0] = 1;
+  frame[0][state-1] = 1;
 }

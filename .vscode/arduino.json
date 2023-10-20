@@ -1,6 +1,6 @@
 {
-    "board": "arduino:avr:uno",
+    "board": "arduino:renesas_uno:unor4wifi",
     "port": "COM5",
-    "sketch": "potentiometer2\\potentiometer2.ino",
+    "sketch": "r4ledMatrix\\r4ledMatrix.ino",
     "programmer": "avrisp"
 }
