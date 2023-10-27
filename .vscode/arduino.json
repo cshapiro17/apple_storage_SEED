@@ -1,6 +1,6 @@
 {
     "board": "arduino:renesas_uno:unor4wifi",
     "port": "COM5",
-    "sketch": "r4ledMatrix\\r4ledMatrix.ino",
+    "sketch": "sprint2_2\\sprint2_2.ino",
     "programmer": "avrisp"
 }
