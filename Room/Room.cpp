@@ -2,19 +2,20 @@
 
 #include "Room.h"
 #include <Arduino.h>
+#include "DFRobot_OxygenSensor.h"
 
-
-Room::Room(int roomNum, int highLevel, int lowLevel, int solenoidPin1,int solenoidPin2 int pumpPin1) {
-    int _roomNum = roomNum;
-    int _highLevel = highLevel;
-    int _lowLevel = lowLevel;
-    int _solenoidPin1 = solenoidPin1;
-    int _solenoidPin2 = solenoidPin2;
-    int _pumpPin1 = pumpPin1;
+Room::Room(int roomNum, int highLevel, int lowLevel, int solenoidPin1,int solenoidPin2, int pumpPin1) {
+    _roomNum = roomNum;
+     _highLevel = highLevel;
+    _lowLevel = lowLevel;
+    _solenoidPin1 = solenoidPin1;
+    _solenoidPin2 = solenoidPin2;
+    _pumpPin1 = pumpPin1;
     boolean _previousSolenoid = false;
     long _highMargin = (_highLevel+_lowLevel)/2 + (_highLevel-(_highLevel+_lowLevel)/2)/3;
     long _lowMargin = (_highLevel+_lowLevel)/2 - (_highLevel-(_highLevel+_lowLevel)/2)/3;
     boolean _active = false;
+
 }
 
 //Activates the room so we know if in use
@@ -25,6 +26,10 @@ void Room::activate(){
 //Deactivates the room so we know if in use
 void Room::deactivate(){
     _active = false;
+}
+
+float Room::senseOxygen(DFRobot_OxygenSensor oxygen, int collectData){
+    return oxygen.getOxygenData(collectData);
 }
 
 /*evaluateRoom is used to measure the value of the potentiometer and determine if a

@@ -3,6 +3,7 @@
 #ifndef Room_h
 #define Room_h
 #include "Arduino.h"
+#include "DFRobot_OxygenSensor.h"
 
 class Room{
     public:
@@ -11,6 +12,8 @@ class Room{
     void activate();
 
     void deactivate();
+
+    float senseOxygen(DFRobot_OxygenSensor, int);
 
     boolean evaluateRoom(int potValue, uint8_t frame[8][12]);
 
@@ -27,7 +30,9 @@ class Room{
         int _highLevel;
         int _lowLevel;
         int _solenoidPin1;
+		int _solenoidPin2;
         int _pumpPin1;
+		boolean _active;
         boolean _previousSolenoid;
 
 

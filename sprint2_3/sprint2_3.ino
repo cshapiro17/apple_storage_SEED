@@ -3,6 +3,7 @@
 #include "Arduino_LED_Matrix.h"
 #include "MillisTimerLib.h"
 #include "Room.h"
+#include "DFRobot_OxygenSensor.h"
 
 ArduinoLEDMatrix matrix;
 
@@ -49,8 +50,12 @@ boolean roomSolenoid;         //boolean whether or not the rooms valve is open/c
 int roomNum1 = 1;                //room number
 int highLevel = 600;          //high level threshold
 int lowLevel = 400;           //low level threshold
+float oxygenValue;
 boolean pumpOnOff;
 Room room1(roomNum1,600,400,solenoidPin1,solenoidPin2,pumpPin1);
+DFRobot_OxygenSensor oxygen;
+#define collectNumber 10
+#define Oxygen_IIC_Address ADDRESS_3
 
 void setup() {
   // pin classifications
@@ -64,6 +69,11 @@ void setup() {
   pinMode(potent1,INPUT);
   Serial.begin(115200);
   matrix.begin();
+  while(!oxygen.begin(Oxygen_IIC_Address)){
+    Serial.println("I2C device number error !");
+    delay(1000);
+  }
+  Serial.println("I2C connect success");
   delay(500);
   state = 1;
 }
@@ -112,13 +122,15 @@ void loop(){
     //Sense State of room pumped in
     case 5:
       potValue1 = analogRead(potent1);
+      //oxygenValue = room1.senseOxygen(oxygen, collectNumber);
+      oxygenValue = oxygen.getOxygenData(collectNumber);
       state = 6;
     break;
 
 
     //log value State of room
     case 6:
-      Serial.println(potValue1);
+      Serial.println(oxygenValue);
       state = 7;
     break;
 
