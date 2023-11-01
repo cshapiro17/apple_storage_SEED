@@ -4,18 +4,22 @@
 #include <Arduino.h>
 #include "DFRobot_OxygenSensor.h"
 
+
+//void Room::Room(void){
+	
+//}
+
 Room::Room(int roomNum, int highLevel, int lowLevel, int solenoidPin1,int solenoidPin2, int pumpPin1) {
-    _roomNum = roomNum;
-     _highLevel = highLevel;
-    _lowLevel = lowLevel;
-    _solenoidPin1 = solenoidPin1;
-    _solenoidPin2 = solenoidPin2;
-    _pumpPin1 = pumpPin1;
+    setRoomNum(roomNum);
+	setHighLevel(highLevel);
+    setLowLevel(lowLevel);
+    setSolPin1(solenoidPin1);
+	setSolPin2(solenoidPin2);
+    setPumpPin1(pumpPin1);
     boolean _previousSolenoid = false;
     long _highMargin = (_highLevel+_lowLevel)/2 + (_highLevel-(_highLevel+_lowLevel)/2)/3;
     long _lowMargin = (_highLevel+_lowLevel)/2 - (_highLevel-(_highLevel+_lowLevel)/2)/3;
     boolean _active = false;
-
 }
 
 //Activates the room so we know if in use
@@ -37,20 +41,23 @@ float Room::senseOxygen(DFRobot_OxygenSensor oxygen, int collectData){
  * Inputs: potentiometer value, matrix used for on board LEDs
  * Output: Boolean true or false to mimick solenoid 
  */
-boolean Room::evaluateRoom(int potValue, uint8_t frame[8][12]){
+boolean Room::evaluateRoom(int potValue,float oxygenValue, uint8_t frame[8][12]){
   boolean solenoid = _previousSolenoid;
-  int highMargin = 550;       //high level it has to come back to in order to close valve
-  int lowMargin = 450;        //low level it has to come back to in order to close valve
-
-  if(potValue>_highLevel){
+       //low level it has to come back to in order to close valve
+  float highMargin = 3.5;
+  float lowMargin = 2.5;
+  float value = oxygenValue*potValue/4000;
+  //+potValue/10000
+  Serial.println(value);
+  if(value>_highLevel){
     roomDisplay(frame,1,0);
     solenoid = true;
   }
-  else if(potValue<_lowLevel){
+  else if(value<_lowLevel){
     roomDisplay(frame,0,1);
     solenoid = true;
   }
-  else if(potValue<highMargin && potValue>lowMargin){
+  else if(value<highMargin && value>lowMargin){
     roomDisplay(frame,1,1);
     solenoid = false;
   }
@@ -127,4 +134,28 @@ void Room::solenoidChange(boolean solenoid){
 */
 boolean Room::isActive(){
     return _active;
+}
+
+void Room::setRoomNum(int RoomNum){
+	_roomNum = RoomNum;
+}
+
+void Room::setHighLevel(int highLevel){
+	_highLevel = highLevel;
+}
+
+void Room::setLowLevel(int lowLevel){
+	_lowLevel = lowLevel;
+}
+
+void Room::setSolPin1(int solenoidPin1){
+	_solenoidPin1 = solenoidPin1;
+}
+
+void Room::setSolPin2(int solenoidPin2){
+	_solenoidPin2 = solenoidPin2;
+}
+
+void Room::setPumpPin1(int pumpPin1){
+	_pumpPin1 = pumpPin1;
 }
