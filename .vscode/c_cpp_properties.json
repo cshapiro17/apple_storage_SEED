@@ -12,12 +12,16 @@
             ],
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\cores\\arduino\\tinyusb",
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\cores\\arduino\\api\\deprecated",
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\cores\\arduino\\api\\deprecated-avr-comp",
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\cores\\arduino",
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\variants\\UNOWIFIR4",
-                "C:\\Users\\hocke\\OneDrive\\Documents\\Arduino\\libraries\\**",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\cores\\arduino\\tinyusb",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\cores\\arduino\\api\\deprecated",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\cores\\arduino\\api\\deprecated-avr-comp",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\cores\\arduino",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\variants\\UNOWIFIR4",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\libraries\\Arduino_LED_Matrix\\src",
+                "C:\\Users\\hocke\\OneDrive\\Documents\\Arduino\\libraries\\MillisTimerLib",
+                "C:\\Users\\hocke\\OneDrive\\Documents\\Arduino\\libraries\\Room",
+                "C:\\Users\\hocke\\OneDrive\\Documents\\Arduino\\libraries\\DFRobot_OxygenSensor\\src",
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\libraries\\Wire",
                 "c:\\users\\hocke\\appdata\\local\\arduino15\\packages\\arduino\\tools\\arm-none-eabi-gcc\\7-2017q4\\arm-none-eabi\\include\\c++\\7.2.1",
                 "c:\\users\\hocke\\appdata\\local\\arduino15\\packages\\arduino\\tools\\arm-none-eabi-gcc\\7-2017q4\\arm-none-eabi\\include\\c++\\7.2.1\\arm-none-eabi",
                 "c:\\users\\hocke\\appdata\\local\\arduino15\\packages\\arduino\\tools\\arm-none-eabi-gcc\\7-2017q4\\arm-none-eabi\\include\\c++\\7.2.1\\backward",
@@ -26,7 +30,7 @@
                 "c:\\users\\hocke\\appdata\\local\\arduino15\\packages\\arduino\\tools\\arm-none-eabi-gcc\\7-2017q4\\arm-none-eabi\\include"
             ],
             "forcedInclude": [
-                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.4\\cores\\arduino\\Arduino.h"
+                "C:\\Users\\hocke\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\renesas_uno\\1.0.5\\cores\\arduino\\Arduino.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
@@ -36,7 +40,7 @@
                 "BACKTRACE_SUPPORT",
                 "ARDUINO_UNOR4_WIFI",
                 "ARDUINO=10607",
-                "PROJECT_NAME=\"C:\\Users\\hocke\\AppData\\Local\\Temp\\arduino\\sketches\\9AFBCF582465BD8BE279CEA82618929B/r4ledMatrix.ino\"",
+                "PROJECT_NAME=\"C:\\Users\\hocke\\AppData\\Local\\Temp\\arduino\\sketches\\86EAA4F54321DF9D4167EAE4A1B54C8A/sprint2_2.ino\"",
                 "ARDUINO_UNOWIFIR4",
                 "ARDUINO_ARCH_RENESAS_UNO",
                 "ARDUINO_ARCH_RENESAS",
