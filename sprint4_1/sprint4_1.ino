@@ -38,13 +38,9 @@ int solenoidO2[6] = {5,6,3,4,5,6};          //pins for solenoids that lets oxyge
 int solenoidN2[6] = {8,9,9,10,11,12};       //pins for solenoids that lets Nitrogen into room
 int solenoidPump[6] = {11,12,15,16,17,18};  //pins for allowing air to be pumped in
 
-int solenoidPin1 = 4;         //solenoid 1 output pin (Room 1 Evaluate Solenoid)
-int solenoidPin2 = 3;         //solenoid 2 output pin (Room 1 Adjustment Solenoid)
-int solenoidPin3 = 9;         //solenoid 3 output pin (Room 2 Evaluate Solenoid)
-int solenoidPin4 = 10;        //solenoid 4 output pin (Room 2 Adjustment Solenoid)
+
 //pumps
 int pumpPin = 1;             //pump 1 output pin (Room 1 Pump)
-int pumpPin2 = 11;            //pump 2 output pin (Room 2 Pump)
 int pumpPin3= 5;             //pump 3 output pin (Fresh Air Pump)
 
 //****************************************************************************
@@ -56,9 +52,7 @@ int interval2 = 10000;            //interval for state 3 delay
 static unsigned int state;        //state variable
 int potValue1;                    //analog potentiometer value
 int roomSolenoids[2];             //solenoids high/low
-int roomNum[6] = {1,2,3,4,5,6};              //room numbers
-int roomNum1 = 1;                 //room number
-int roomNum2 = 2;                 //room number
+int roomNum[6] = {1,2,3,4,5,6};   //room numbers
 static int MAXROOMS = 1;
 
 boolean pumpOnOff;
