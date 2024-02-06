@@ -9,7 +9,7 @@
 // char writeCommandCalibrate = "G \r\n";      //command to calibrate sensor to fresh air value (400 ppm)
 // char writeCommandMultiplier = ". \r\n";     //command to receieve the multiplier value of the sensor
 
-
+int count = 0;
 char sensorDataBuffer[256];           //buffer character
 int bufferPosition = 0;               // Variable to keep track of the buffer position.
 
@@ -17,14 +17,24 @@ void setup() {
   Serial.begin(9600);                 //Serial Monitor 
   Serial1.begin(9600);                //CO2 sensor Serial RX0/TX0
   Serial1.write("K 2\r\n");           //Set CO2 messaging to polling state
+
   delay(1000);                        //1 second delay
+
   Serial1.write("a\r\n");             //find the digital filter value (should be 16)
-  Serial1.write(". \r\n");            find the multiplier value
+  //Serial1.write("A 32\r\n");         
+  Serial1.write("a\r\n");             //find the digital filter value (should be 16)
+  Serial1.write(".\r\n");            //find the multiplier value
 }
 
 void loop() {
   delay(2000);
+  if (count == 10){
+    Serial.println("calibrating sensor");
+    Serial1.write("G\r\n");
+  }
+  count ++;
   Serial1.write("Z \r\n");                        //get CO2 value
+
   while (Serial1.available() > 0) {
     char incomingByte = Serial1.read();           // Read the incoming byte.
     // Check if the incoming byte is a newline character, indicating the end of a message.
