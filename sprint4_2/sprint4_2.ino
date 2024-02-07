@@ -52,7 +52,6 @@ boolean pumpOnOff;
 Room3 room[2] = {
     Room3(roomNum[0], 4, 2, oxygenSolenoidPin[0], nitrogenSolenoidPin[0], pumpSolenoidPin[0], pumpPin, oxygenSolenoidState, nitrogenSolenoidState),
     Room3(roomNum[1], 4, 2, oxygenSolenoidPin[1], nitrogenSolenoidPin[1], pumpSolenoidPin[1], pumpPin, oxygenSolenoidState, nitrogenSolenoidState),
-    // The last two elements will be default-initialized if Room has a default constructor
 };
 
 int x = 0;                        //x is the RUT (Room under Test)
@@ -313,7 +312,7 @@ void loop(){
           dataArray[0] = "room" + String(x + 1);          // Create update about room under test
           dataString = "";                                // Reset dataString
           dataString = arrayToString(dataArray);          // Convert data to string
-          Serial.println(dataString);                     // Send update  
+          Serial.println(dataString);                     // Send update 
 
           // This turns on the pump to pull in air into the measuring environment
           room[x].pumpOn(true);
