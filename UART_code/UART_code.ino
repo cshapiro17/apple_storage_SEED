@@ -22,17 +22,18 @@ void setup() {
 
   Serial1.write("a\r\n");             //find the digital filter value (should be 16)
   //Serial1.write("A 32\r\n");         
-  Serial1.write("a\r\n");             //find the digital filter value (should be 16)
+  delay(1000);
   Serial1.write(".\r\n");            //find the multiplier value
 }
 
 void loop() {
   delay(2000);
-  if (count == 10){
+  if (count == 100){
     Serial.println("calibrating sensor");
     Serial1.write("G\r\n");
   }
   count ++;
+  Serial.println("Given Z \r\n");                        //get CO2 value
   Serial1.write("Z \r\n");                        //get CO2 value
 
   while (Serial1.available() > 0) {
@@ -41,6 +42,7 @@ void loop() {
     if (incomingByte == '\n') {
       sensorDataBuffer[bufferPosition] = '\0';    // string terminator to make it a proper C-style string.   
       Serial.println(sensorDataBuffer);           // sensorDataBuffer contains a complete message. 
+      Serial.println(extractNumber(sensorDataBuffer));
       bufferPosition = 0;                         // Reset the buffer position for the next message.
 
     } else {
@@ -52,4 +54,17 @@ void loop() {
       }
     }
   }
+}
+
+int extractNumber(String data) {
+  String numberString = ""; // This will store the numeric part of the message
+  for (int i = 0; i < data.length(); i++) {
+    if (isDigit(data[i])) { // Check if the character is a digit
+      numberString += data[i]; // Append the digit to 'numberString'
+    }
+  }
+  if (numberString.length() > 0) {
+    return numberString.toInt(); // Convert the numeric string to an integer
+  }
+  return 0; // Return 0 or an appropriate value if no number was found
 }
