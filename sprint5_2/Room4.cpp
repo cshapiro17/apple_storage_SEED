@@ -87,7 +87,7 @@ int Room4::evaluateRoom(float oxygenValue, float carbonValue){
   //O2 good, CO2 too low ******************************************
   else if(oxygenLevel == 0 && carbonLevel == 1){
 	  //flag that CO2 is too low? what can we do ???
-    setN2solState(0);
+    setN2solState(1);
     setO2solState(0);
   }
   //O2 good, CO2 too high *****************************************
@@ -202,6 +202,7 @@ void Room4::setNitrogenSolenoidPin(int nitrogenSolenoidPin){
  */
 void Room4::setN2solState(int desiredN2solState) {
   N2sol.N2state = desiredN2solState;
+  digitalWrite(N2sol.N2pin,N2sol.N2state);
 }
 
 /* Setter for oxygen solenoid states
@@ -210,6 +211,7 @@ void Room4::setN2solState(int desiredN2solState) {
  */
 void Room4::setO2solState(int desiredO2solState) {
   O2sol.O2state = desiredO2solState;
+  digitalWrite(O2sol.O2pin,O2sol.O2state);
 }
 
 /* Sets the apple type for the room

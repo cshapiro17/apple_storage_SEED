@@ -107,8 +107,8 @@ void checkSensorLevel() {
   while(sensorsNotLevel) {
     
     // Get oxygen value from sensor
-    currentO2 = oxygen.getOxygenData(collectNumber);
-
+    //currentO2 = oxygen.getOxygenData(collectNumber);
+    currentO2 = 2.5;
     // Check to see if the oxygen sensor has read consistent values for 2 cycles
     if(currentO2 < previousO2*1.01 && currentO2 > previousO2*.99){ 
 
@@ -159,7 +159,7 @@ void setUpSystem() {
   // Set up system variables
   VRS.setSystemName("VRS Apple Storage Control");         // Name of system
   VRS.setNumRooms(2);                                     // Number of rooms
-  VRS.setPumpPin(22);                                      // Pin for pump
+  VRS.setPumpPin(52);                                      // Pin for pump
 
   // Set up room1 variables
   VRS.rooms[0].setRoomNum(1);                             // Number of room
@@ -177,7 +177,7 @@ void setUpSystem() {
   VRS.rooms[1].setAppleType(Honeycrisp);                  // Type of apple in room
   VRS.rooms[1].setOxygenSolenoidPin(44);                  // (pin 44) Pin for oxygen solenoid/fan
   VRS.rooms[1].setNitrogenSolenoidPin(45);                // (pin 45) Pin for nitrogen solenoid
-  VRS.rooms[1].setSensingSolenoidPin(32);                 // (pin 32) Pin for the solenoid for measurement in room2
+  VRS.rooms[1].setSensingSolenoidPin(34);                 // (pin 32) Pin for the solenoid for measurement in room2
   VRS.rooms[1].setO2solState(0);                          // Initial state of the oxygen solenoid/fan
   VRS.rooms[1].setN2solState(0);                          // Initial state of the nitrogen solenoid
   VRS.rooms[1].setSenseSolState(0);                       // Initial state of the sensing solenoid
@@ -196,7 +196,7 @@ void testSetUp() {
 //***************************************************************************
 
 void setup() {
-
+  Serial.println("Test Setup");
   setUpSystem();
 
   testSetUp();
@@ -215,25 +215,26 @@ void setup() {
   // Wait for serial port to open
   while(!Serial);
   //initialize Serial1 communication @ 9600 Baud Rate for CO2 sensor (RX/TX 0)
-  Serial1.begin(9600)
+  Serial1.begin(9600);
   // Wait for serial1 port to open
   while(!Serial1);
 
   //EXPLORIR CO2 connection
+  Serial.println("CO2 setup");
   explorCO2.initialize();
   delay(2000);
-  
-  //Oxygen I2C connection
-  while(!oxygen.begin(Oxygen_IIC_Address)){
 
-    // Send update to dashboard
-    dataArray[6] = "I2C device number error!";      // Create update about I2C connection failure
-    dataString = "";                                // Reset dataString
-    dataString = arrayToString(dataArray);          // Convert data to string
-    Serial.println(dataString);                     // Send update
+  //Oxygen I2C connection
+  // while(!oxygen.begin(Oxygen_IIC_Address)){
+
+  //   // Send update to dashboard
+  //   dataArray[6] = "I2C device number error!";      // Create update about I2C connection failure
+  //   dataString = "";                                // Reset dataString
+  //   dataString = arrayToString(dataArray);          // Convert data to string
+  //   Serial.println(dataString);                     // Send update
     
-    delay(1000);
-  }
+  //   delay(1000);
+  // }
 
   // Send update to dashboard
   dataArray[6] = "I2C connect success";           // Create update about successful I2C connection
@@ -246,6 +247,7 @@ void setup() {
   calibration_necessary = true;
 
   // Begin state machine
+  Serial.println("going to state 1");
   state = 1;
 }
 
@@ -265,12 +267,14 @@ void loop(){
     case 1:
 
       // Set all rooms to be active
+      Serial.println("activating rooms");
       VRS.rooms[0].activate();
       VRS.rooms[1].activate();
       
       delay(1000);
 
       // Proceed to state 2
+      Serial.println("Going to state 2");
       state = 2;
     break;
     
@@ -289,6 +293,7 @@ void loop(){
         if(calibration_necessary){
    
           // Proceed to state 3
+          Serial.println("Going to state 3");
           state = 3;
         }
         else {
@@ -300,6 +305,7 @@ void loop(){
           Serial.println(dataString);                     // Send update
   
           // Proceed to state 4
+          Serial.println("Going to state 4");
           state = 4;
         }
       }
@@ -330,6 +336,7 @@ void loop(){
         calibration_necessary = false;
         
         // Return to state 2
+        Serial.println("Going to state 2");
         state = 2;
       }
     break;
@@ -357,22 +364,26 @@ void loop(){
           dataArray[5] = "";
           
           // If active, update dashboard
-          dataArray[0] = "room" + String(x + 1);          // Create update about room under test
+          Serial.println("Update Dashboard");
+          dataArray[0] = "room " + String(x + 1);         // Create update about room under test
           dataString = "";                                // Reset dataString
           dataString = arrayToString(dataArray);          // Convert data to string
           Serial.println(dataString);                     // Send update 
 
           // This turns on the pump to pull in air into the measuring environment
+          Serial.println("Turning pump on");
           VRS.pumpOn(true, VRS.rooms[x].getRoomNum() - 1);
 
           // Call function to make sure sensors are level before proceeding
+          Serial.println("Checking sensor leveled out");
           checkSensorLevel();
 
           // When sensors are leveled, we can turn off the pump
           VRS.pumpOn(false, VRS.rooms[x].getRoomNum() - 1);
 
           // Sensors should be level and we can now take measurements
-          oxygenValue = oxygen.getOxygenData(collectNumber);
+          //oxygenValue = oxygen.getOxygenData(collectNumber);
+          oxygenValue = 2.5;
           CO2Percent = explorCO2.getPercent();                                     //get percentage of CO2
           int roomTemp = 36;                                                       // Placeholder for temperature
      

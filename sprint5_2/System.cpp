@@ -120,7 +120,7 @@ void System::pumpOn(boolean pumpSwitch, int roomNum){
   if(pumpSwitch){
     
     // Set solenoid to open and turn pump on
-    digitalWrite(rooms[roomNum - 1].senseSol.sensePin, HIGH);
+    digitalWrite(rooms[roomNum].senseSol.sensePin, HIGH);
     digitalWrite(sensingPump.pin, HIGH);
 
     sensingPump.pumpState = 1;
@@ -130,7 +130,7 @@ void System::pumpOn(boolean pumpSwitch, int roomNum){
   else{
     
     // Set solenoid to closed and turn pump off
-    digitalWrite(rooms[roomNum - 1].senseSol.sensePin, LOW);
+    digitalWrite(rooms[roomNum].senseSol.sensePin, LOW);
     digitalWrite(sensingPump.pin, LOW);
 
     // Set pump s
