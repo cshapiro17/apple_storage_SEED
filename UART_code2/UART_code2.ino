@@ -20,7 +20,8 @@ void loop() {
   if(count == 0){
     myCO2Sensor.initialize();
   }
-  if(count == 10){
+  if(count == 50){
+    Serial.println("Calibrating...");
     myCO2Sensor.calibrate();
   }
   delay(2000);
