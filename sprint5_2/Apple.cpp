@@ -3,7 +3,10 @@ using namespace std;
 
 // Default constructor
 Apple::Apple() : appleName("Honeycrisp"), oxygenHighLevel(4), oxygenLowLevel(2), carbonHighLevel(3), carbonLowLevel(1) {
-  
+  setOxygenHighMargin();
+  setOxygenLowMargin();
+  setCarbonHighMargin();
+  setCarbonLowMargin();
 }
 
 /* Getter for the high level of oxygen for the apple
@@ -42,7 +45,7 @@ float Apple::getCarbonLowLevel() {
  * Takes in nothing
  * Returns the margin of oxygen as a long
  */
-long Apple::getOxygenHighMargin(){
+float Apple::getOxygenHighMargin(){
   return oxygenHighMargin;
 }
 
@@ -50,8 +53,24 @@ long Apple::getOxygenHighMargin(){
  * Takes in nothing
  * Returns the margin of oxygen as a long
  */
-long Apple::getOxygenLowMargin() {
+float Apple::getOxygenLowMargin() {
   return oxygenLowMargin;
+}
+
+/* Getter for the high margin of carbon for the apple
+ * Takes in nothing
+ * Returns the margin of carbon as a long
+ */
+float Apple::getCarbonHighMargin(){
+  return carbonHighMargin;
+}
+
+/* Getter for the low margin of carbon for the apple
+ * Takes in nothing
+ * Returns the margin of carbon as a long
+ */
+float Apple::getCarbonLowMargin() {
+  return carbonLowMargin;
 }
 
 /* Setter for the high level of oxygen for the apple
@@ -91,7 +110,7 @@ void Apple::setCarbonLowLevel(float lowN2) {
  * Returns nothing
  */
 void Apple::setOxygenHighMargin() {
-  oxygenHighMargin = ((oxygenHighLevel + oxygenLowLevel) / 2) + (oxygenHighLevel - (oxygenHighLevel + oxygenLowLevel) / 2) / 3;
+  oxygenHighMargin = ((oxygenHighLevel + oxygenLowLevel) / 2) + ((oxygenHighLevel - (oxygenHighLevel + oxygenLowLevel)/2) / 3);
 }
 
 /* Setter for the low margin of oxygen for the apple
@@ -99,5 +118,21 @@ void Apple::setOxygenHighMargin() {
  * Returns nothing
  */
 void Apple::setOxygenLowMargin() {
-  oxygenLowMargin = ((oxygenHighLevel + oxygenLowLevel) / 2) - (oxygenHighLevel - (oxygenHighLevel + oxygenLowLevel) / 2) / 3;
+  oxygenLowMargin = ((oxygenHighLevel + oxygenLowLevel) / 2) - ((oxygenHighLevel - (oxygenHighLevel + oxygenLowLevel)/2) / 3);
+}
+
+/* Setter for the high margin of carbon for the apple
+ * Takes in nothing
+ * Returns nothing
+ */
+void Apple::setCarbonHighMargin() {
+  carbonHighMargin = ((carbonHighLevel + carbonLowLevel) / 2) + ((carbonHighLevel - (carbonHighLevel + carbonLowLevel)/2) / 3);
+}
+
+/* Setter for the low margin of carbon for the apple
+ * Takes in nothing
+ * Returns nothing
+ */
+void Apple::setCarbonLowMargin() {
+  carbonLowMargin = ((carbonHighLevel + carbonLowLevel) / 2) - ((carbonHighLevel - (carbonHighLevel + carbonLowLevel)/2) / 3);
 }

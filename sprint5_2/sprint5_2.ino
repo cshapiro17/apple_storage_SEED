@@ -70,6 +70,13 @@ DFRobot_OxygenSensor oxygen;
 #define collectNumber 10
 #define Oxygen_IIC_Address ADDRESS_3\
 
+//****************************************************************************
+// Potetntiometer values for offline debug and validation
+//****************************************************************************
+int potpin1 = A3;
+int potpin2 = A4;
+float potValue1;
+float potValue2;
 //***************************************************************************
 // DATA COLLECTION AND STORAGE
 //***************************************************************************
@@ -197,6 +204,8 @@ void setup() {
   pinMode(VRS.rooms[1].getNitrogenSolenoidPin(), OUTPUT);
   pinMode(VRS.rooms[0].getSensingSolenoidPin() , OUTPUT);
   pinMode(VRS.rooms[1].getSensingSolenoidPin() , OUTPUT);
+  pinMode(potpin1,INPUT);
+  pinMode(potpin2,INPUT);
   pinMode(VRS.getPumpPin(), OUTPUT);
 
   // Initialize serial connection @ 9600 Baud Rate for serial monitor
@@ -371,10 +380,15 @@ void loop(){
 
           // Sensors should be level and we can now take measurements
           //oxygenValue = oxygen.getOxygenData(collectNumber);
-          oxygenValue = 2.5;
-          CO2Percent = explorCO2.getPercent();                            //get percentage of CO2
+          //oxygenValue = 2.5;
+          potValue1 = analogRead(potpin1);
+          potValue2 = analogRead(potpin2);
+          oxygenValue = 2.5 * potValue1/600;                             //potvalue debug O2 value
+          //CO2Percent = explorCO2.getPercent();                           //get percentage of CO2
+          CO2Percent = explorCO2.getPercent() * potValue2 / 30 ;           //potvalue debug CO2 value
           int roomTemp = 36;                                              // Placeholder for temperature
-     
+          Serial.println(potValue1);
+          Serial.println(potValue2);
           // Evaluate the room, this function will set the states of the solenoids to their necessary positions (open or closed)
           VRS.rooms[x].evaluateRoom(oxygenValue, CO2Percent);
 
