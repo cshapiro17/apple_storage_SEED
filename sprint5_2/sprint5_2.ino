@@ -154,7 +154,7 @@ void setUpSystem() {
   // Set up system variables
   VRS.setSystemName("VRS Apple Storage Control");         // Name of system
   VRS.setNumRooms(2);                                     // Number of rooms
-  VRS.setPumpPin(52);                                      // Pin for pump
+  VRS.setPumpPin(52);                                     // Pin for pump
 
   // Set up room1 variables
   VRS.rooms[0].setRoomNum(1);                             // Number of room
