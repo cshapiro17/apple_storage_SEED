@@ -38,7 +38,8 @@ Apple Honeycrisp;
 unsigned long previousMillis = 0;       // Compare to value for currentMillis
 unsigned long currentMillis;            // Holds current value from millis()
 
-int delay_interval = 1000;              //interval for state 2 and 3 delay
+int DELAY_1S = 1000;              //1 second delay
+int DELAY_10S = 10000;            //10 second delay
 
 static unsigned int state;              //state variable
 
@@ -102,28 +103,23 @@ String dataString;       // String to hold all data to be sent over serial conne
  */
 void checkSensorLevel() {
   // This delay can be used to run the pump for a certain amount of time before checking levels
-  delay(10000);
+  delay(DELAY_10S);
 
   boolean sensorsNotLevel = true;
   
   while(sensorsNotLevel) {
-    
     // Get oxygen value from sensor
     //currentO2 = oxygen.getOxygenData(collectNumber);
-    currentO2 = 2.5;
+    currentO2 = 2.5;                                                              //placeholder
     // Check to see if the oxygen sensor has read consistent values for 2 cycles
     if(currentO2 < previousO2*1.01 && currentO2 > previousO2*.99){ 
-
       //setprevious to 0 for next time, so that pump stays on for at least 20 Sec
       previousO2 = 0; 
-
       // SensorsNotLevel is now false and while loop will break
       sensorsNotLevel = false;
     }
-
     // Sensors are not level
     else {
-
       // Set previous oxygen value for comparison in the future
       previousO2 = currentO2;
     }
@@ -268,7 +264,7 @@ void loop(){
       VRS.rooms[0].activate();
       VRS.rooms[1].activate();
       
-      delay(1000);
+      delay(DELAY_1S);
 
       // Proceed to state 2
       Serial.println("...(INFO): Going to state 2");
@@ -281,7 +277,7 @@ void loop(){
 
       // Set currentMillis
       currentMillis = millis();
-      if ((currentMillis - previousMillis) >= delay_interval){
+      if ((currentMillis - previousMillis) >= DELAY_1S){
         
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -314,7 +310,7 @@ void loop(){
       // Set currentMillis
       currentMillis = millis();
       
-      if ((currentMillis - previousMillis) >= delay_interval) {
+      if ((currentMillis - previousMillis) >= DELAY_10S) {
 
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -327,7 +323,7 @@ void loop(){
         dataString = arrayToString(dataArray);          // Convert data to string
         Serial.println(dataString);                     // Send update 
 
-        delay(10000);
+        delay(DELAY_10S);
 
         // Calibration is no longer necessary
         calibration_necessary = false;
@@ -345,7 +341,7 @@ void loop(){
       // Set currentMillis
       currentMillis = millis();
       
-      if ((currentMillis - previousMillis) >= delay_interval) {
+      if ((currentMillis - previousMillis) >= DELAY_1S) {
 
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -372,7 +368,7 @@ void loop(){
           VRS.pumpOn(true, VRS.rooms[x].getRoomNum() - 1);
 
           // Call function to make sure sensors are level before proceeding
-          Serial.println("...(INFO): Checking sensor leveled out");
+          Serial.println("...(INFO): Checking sensors leveled out");
           checkSensorLevel();
 
           // When sensors are leveled, we can turn off the pump
