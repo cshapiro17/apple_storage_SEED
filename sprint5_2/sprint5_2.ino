@@ -69,13 +69,13 @@ float currentO2;
 float previousO2;
 DFRobot_OxygenSensor oxygen;
 #define collectNumber 10
-#define Oxygen_IIC_Address ADDRESS_3\
+#define Oxygen_IIC_Address ADDRESS_3
 
 //****************************************************************************
 // Potetntiometer values for offline debug and validation
 //****************************************************************************
-int potpin1 = A3;
-int potpin2 = A4;
+#define potpin1 A8
+#define potpin2 A9
 float potValue1;
 float potValue2;
 //***************************************************************************
@@ -200,8 +200,8 @@ void setup() {
   pinMode(VRS.rooms[1].getNitrogenSolenoidPin(), OUTPUT);
   pinMode(VRS.rooms[0].getSensingSolenoidPin() , OUTPUT);
   pinMode(VRS.rooms[1].getSensingSolenoidPin() , OUTPUT);
-  pinMode(potpin1,INPUT);
-  pinMode(potpin2,INPUT);
+  //pinMode(potpin1,INPUT);
+  //pinMode(potpin2,INPUT);
   pinMode(VRS.getPumpPin(), OUTPUT);
 
   // Initialize serial connection @ 9600 Baud Rate for serial monitor
