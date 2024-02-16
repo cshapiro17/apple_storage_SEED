@@ -141,6 +141,8 @@ String arrayToString(String dataArray[]) {
   return dataString;
 }
 
+/* Function which checks to see 
+
 /*
  * Function which is responsible for initializing and setting up the room objects and system
  * This is where you can modify parameters such as pin numbers
