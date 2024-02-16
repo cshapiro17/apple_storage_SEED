@@ -11,7 +11,7 @@ const char* writeCommandPolling = "K 2\r\n";
 const char* writeCommandFilter = "a\r\n";         //command to respond with digital filter value (default 16?)
 const char* writeCommandCalibrate = "G\r\n";      //command to calibrate sensor to fresh air value (400 ppm)
 const char* writeCommandMultiplier = ".\r\n";     //command to receieve the multiplier value of the sensor
-const char* writeCommandGetValue = "Z \r\n";     //command to receieve the CO2 value
+const char* writeCommandGetValue = "Z \r\n";      //command to receieve the CO2 value
 
 /* CO2Sensor Constructor
  * Sets all values to 0, as they will be obtained once initialized

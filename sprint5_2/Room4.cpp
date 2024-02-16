@@ -45,18 +45,29 @@ int Room4::evaluateRoom(float oxygenValue, float carbonValue){
   int oxygenLevel;
 
   // Set values to compare to the sensor values
-  float highMargin = appleType.getOxygenHighMargin();
-  float lowMargin = appleType.getOxygenLowMargin();
+  float oxygenHighMargin = appleType.getOxygenHighMargin();
+  float oxygenLowMargin = appleType.getOxygenLowMargin();
+  float carbonHighMargin = appleType.getCarbonHighMargin();
+  float carbonLowMargin = appleType.getCarbonLowMargin();
+
+  // Serial.println("O2 High Margin: ");
+  // Serial.println(oxygenHighMargin);
+  // Serial.println("O2 low Margin: ");
+  // Serial.println(oxygenLowMargin);
+  // Serial.println("CO2 High Margin: ");
+  // Serial.println(carbonHighMargin);
+  // Serial.println("CO2 low Margin: ");
+  // Serial.println(carbonLowMargin);
 
   // Evaluate room conditions for carbon dioxide levels
   //0 = neutral, 1 = too low, 2 = too high, 3 = almost good?
-  if(carbonValue > appleType.getOxygenHighLevel()){
+  if(carbonValue > appleType.getCarbonHighLevel()){
     carbonLevel = 2;
   }
-  else if(carbonValue < appleType.getOxygenLowLevel()){
+  else if(carbonValue < appleType.getCarbonLowLevel()){
 	carbonLevel = 1;
   }
-  else if(carbonValue < appleType.getOxygenHighMargin() && carbonValue > appleType.getOxygenLowMargin()){
+  else if(carbonValue < carbonHighMargin && carbonValue > carbonLowMargin){
 	carbonLevel = 0;
   }
   else{
@@ -71,7 +82,7 @@ int Room4::evaluateRoom(float oxygenValue, float carbonValue){
   else if(oxygenValue< appleType.getOxygenLowLevel()){
 	  oxygenLevel = 1;
   }
-  else if(oxygenValue < appleType.getOxygenHighMargin() && oxygenValue > appleType.getOxygenLowMargin()){
+  else if(oxygenValue < oxygenHighMargin && oxygenValue > oxygenLowMargin){
 	  oxygenLevel = 0;
   }
   else{

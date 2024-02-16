@@ -1,7 +1,9 @@
-/*Team 16--Apple Storage Controller MAIN Code for sprint 5 -- Sensing room able to pump in air from 2 rooms, 
+/*Team 16--Apple Storage Controller MAIN Code for sprint 5 rev 2 -- 
+* Sensing room able to pump in air from 2 rooms, capabaility of any number of rooms 
 * along with sense room flushing capabilities to make sure sensor is reading values properly.
-* Also able to read both O2 and CO2, making changes to both. Has CO2 Sensor Integration
-* Setup to work with Arduino Giga R1 Wifi
+* Also able to read both O2 and CO2, from ExplorIR CO2 sensor and DFRobot Oxygen sensor.
+* Setup to work with Arduino Giga R1 Wifi -- make sure Giga is in mode to accept upload by 
+* double tapping reset button (on board LED will blink green).
 */
 
 #include "MillisTimerLib.h"
@@ -13,14 +15,12 @@
 //****************************************************************************
 // SYSTEM
 //****************************************************************************
-
 // Create the system object
 System VRS;
 
 // ******************************************************************************
 // ROOMS
 // ******************************************************************************
-
 // Create room objects
 Room4 room1;
 Room4 room2;
@@ -28,19 +28,18 @@ Room4 room2;
 // *****************************************************************************
 // APPLES
 // *****************************************************************************
-
 // Create an apple object for default
 Apple Honeycrisp;
 
 //****************************************************************************
 //GLOBAL VARIABLES
 //****************************************************************************
-
 // Set previousMillis to 0
 unsigned long previousMillis = 0;       // Compare to value for currentMillis
 unsigned long currentMillis;            // Holds current value from millis()
 
-int delay_interval = 1000;              //interval for state 2 and 3 delay
+int DELAY_1S = 1000;              //1 second delay
+int DELAY_10S = 10000;            //10 second delay
 
 static unsigned int state;              //state variable
 
@@ -65,18 +64,23 @@ float CO2Percent;
 // OXYGEN VARIABLES
 // Likely to be replaced by new O2 sensor
 //****************************************************************************
-
 float oxygenValue;
 float currentO2;
 float previousO2;
 DFRobot_OxygenSensor oxygen;
 #define collectNumber 10
-#define Oxygen_IIC_Address ADDRESS_3\
+#define Oxygen_IIC_Address ADDRESS_3
 
+//****************************************************************************
+// Potetntiometer values for offline debug and validation
+//****************************************************************************
+#define potpin1 A8
+#define potpin2 A9
+float potValue1;
+float potValue2;
 //***************************************************************************
 // DATA COLLECTION AND STORAGE
 //***************************************************************************
-
 String dataArray[7] = {
   "",                    // Room [0]
   "",                    // Oxygen Value [1]
@@ -98,30 +102,24 @@ String dataString;       // String to hold all data to be sent over serial conne
  * Returns nothing
  */
 void checkSensorLevel() {
-
   // This delay can be used to run the pump for a certain amount of time before checking levels
-  delay(10000);
+  delay(DELAY_10S);
 
   boolean sensorsNotLevel = true;
   
   while(sensorsNotLevel) {
-    
     // Get oxygen value from sensor
     //currentO2 = oxygen.getOxygenData(collectNumber);
-    currentO2 = 2.5;
+    currentO2 = 2.5;                                                              //placeholder
     // Check to see if the oxygen sensor has read consistent values for 2 cycles
     if(currentO2 < previousO2*1.01 && currentO2 > previousO2*.99){ 
-
       //setprevious to 0 for next time, so that pump stays on for at least 20 Sec
       previousO2 = 0; 
-
       // SensorsNotLevel is now false and while loop will break
       sensorsNotLevel = false;
     }
-
     // Sensors are not level
     else {
-
       // Set previous oxygen value for comparison in the future
       previousO2 = currentO2;
     }
@@ -133,7 +131,6 @@ void checkSensorLevel() {
  * Returns the dataString
  */
 String arrayToString(String dataArray[]) {
-
   for (int i = 0; i < 6; i++) {
     dataString = dataString + dataArray[i] + ",";
   }
@@ -146,12 +143,10 @@ String arrayToString(String dataArray[]) {
 /*
  * Function which is responsible for initializing and setting up the room objects and system
  * This is where you can modify parameters such as pin numbers
- * 
  * Takes in nothing 
  * Returns nothing
  */
 void setUpSystem() {
-
   // Add the rooms to the system
   VRS.addRoom(room1);
   VRS.addRoom(room2);
@@ -159,7 +154,7 @@ void setUpSystem() {
   // Set up system variables
   VRS.setSystemName("VRS Apple Storage Control");         // Name of system
   VRS.setNumRooms(2);                                     // Number of rooms
-  VRS.setPumpPin(52);                                      // Pin for pump
+  VRS.setPumpPin(52);                                     // Pin for pump
 
   // Set up room1 variables
   VRS.rooms[0].setRoomNum(1);                             // Number of room
@@ -171,13 +166,12 @@ void setUpSystem() {
   VRS.rooms[0].setN2solState(0);                          // Initial state of the nitrogen solenoid
   VRS.rooms[0].setSenseSolState(0);                       // Initial state of the sensing solenoid
 
-
   // Set up room2 variables
   VRS.rooms[1].setRoomNum(2);                             // Number of room
   VRS.rooms[1].setAppleType(Honeycrisp);                  // Type of apple in room
   VRS.rooms[1].setOxygenSolenoidPin(44);                  // (pin 44) Pin for oxygen solenoid/fan
   VRS.rooms[1].setNitrogenSolenoidPin(45);                // (pin 45) Pin for nitrogen solenoid
-  VRS.rooms[1].setSensingSolenoidPin(34);                 // (pin 32) Pin for the solenoid for measurement in room2
+  VRS.rooms[1].setSensingSolenoidPin(32);                 // (pin 32) Pin for the solenoid for measurement in room2
   VRS.rooms[1].setO2solState(0);                          // Initial state of the oxygen solenoid/fan
   VRS.rooms[1].setN2solState(0);                          // Initial state of the nitrogen solenoid
   VRS.rooms[1].setSenseSolState(0);                       // Initial state of the sensing solenoid
@@ -194,34 +188,35 @@ void testSetUp() {
 //***************************************************************************
 //Setup
 //***************************************************************************
-
 void setup() {
-  Serial.println("Test Setup");
   setUpSystem();
 
   testSetUp();
   
   // pin classifications
-  pinMode(VRS.rooms[0].getOxygenSolenoidPin(), OUTPUT);
-  pinMode(VRS.rooms[1].getOxygenSolenoidPin(), OUTPUT);
+  pinMode(VRS.rooms[0].getOxygenSolenoidPin()  , OUTPUT);
+  pinMode(VRS.rooms[1].getOxygenSolenoidPin()  , OUTPUT);
   pinMode(VRS.rooms[0].getNitrogenSolenoidPin(), OUTPUT);
   pinMode(VRS.rooms[1].getNitrogenSolenoidPin(), OUTPUT);
-  pinMode(VRS.rooms[0].getSensingSolenoidPin(), OUTPUT);
-  pinMode(VRS.rooms[1].getSensingSolenoidPin(), OUTPUT);
+  pinMode(VRS.rooms[0].getSensingSolenoidPin() , OUTPUT);
+  pinMode(VRS.rooms[1].getSensingSolenoidPin() , OUTPUT);
+  //pinMode(potpin1,INPUT);
+  //pinMode(potpin2,INPUT);
   pinMode(VRS.getPumpPin(), OUTPUT);
 
   // Initialize serial connection @ 9600 Baud Rate for serial monitor
   Serial.begin(9600);
   // Wait for serial port to open
   while(!Serial);
+  Serial.println("...(SETUP): Serial Communication started");
   //initialize Serial1 communication @ 9600 Baud Rate for CO2 sensor (RX/TX 0)
   Serial1.begin(9600);
   // Wait for serial1 port to open
   while(!Serial1);
-
+  Serial.println("...(SETUP): Serial1 Communication started");
   //EXPLORIR CO2 connection
-  Serial.println("CO2 setup");
   explorCO2.initialize();
+  Serial.println("...(SETUP): CO2 sensor setup");
   delay(2000);
 
   //Oxygen I2C connection
@@ -237,17 +232,16 @@ void setup() {
   // }
 
   // Send update to dashboard
-  dataArray[6] = "I2C connect success";           // Create update about successful I2C connection
+  dataArray[6] = "...(SETUP): I2C connect success";           // Create update about successful I2C connection
   dataString = "";                                // Reset dataString
   dataString = arrayToString(dataArray);          // Convert data to string
   Serial.println(dataString);                     // Send update
-
 
   // Set calibrate to active
   calibration_necessary = true;
 
   // Begin state machine
-  Serial.println("going to state 1");
+  Serial.println("...(SETUP): going to state 1");
   state = 1;
 }
 
@@ -255,11 +249,10 @@ void setup() {
 //Loop 
 //****************************************************************************
 void loop(){
-
   // Set current time in millis
   currentMillis = millis();
 
-  // Create state machine
+  // Enter state machine
   switch(state){
     
     // Reset state ********************************************************************************************
@@ -267,14 +260,14 @@ void loop(){
     case 1:
 
       // Set all rooms to be active
-      Serial.println("activating rooms");
+      Serial.println("...(INFO): activating rooms");
       VRS.rooms[0].activate();
       VRS.rooms[1].activate();
       
-      delay(1000);
+      delay(DELAY_1S);
 
       // Proceed to state 2
-      Serial.println("Going to state 2");
+      Serial.println("...(INFO): Going to state 2");
       state = 2;
     break;
     
@@ -284,7 +277,7 @@ void loop(){
 
       // Set currentMillis
       currentMillis = millis();
-      if ((currentMillis - previousMillis) >= delay_interval){
+      if ((currentMillis - previousMillis) >= DELAY_1S){
         
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -293,7 +286,7 @@ void loop(){
         if(calibration_necessary){
    
           // Proceed to state 3
-          Serial.println("Going to state 3");
+          Serial.println("...(INFO): Going to state 3");
           state = 3;
         }
         else {
@@ -305,7 +298,7 @@ void loop(){
           Serial.println(dataString);                     // Send update
   
           // Proceed to state 4
-          Serial.println("Going to state 4");
+          Serial.println("...(INFO): Going to state 4");
           state = 4;
         }
       }
@@ -317,7 +310,7 @@ void loop(){
       // Set currentMillis
       currentMillis = millis();
       
-      if ((currentMillis - previousMillis) >= delay_interval) {
+      if ((currentMillis - previousMillis) >= DELAY_10S) {
 
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -330,13 +323,13 @@ void loop(){
         dataString = arrayToString(dataArray);          // Convert data to string
         Serial.println(dataString);                     // Send update 
 
-        delay(10000);
+        delay(DELAY_10S);
 
         // Calibration is no longer necessary
         calibration_necessary = false;
         
         // Return to state 2
-        Serial.println("Going to state 2");
+        Serial.println("...(INFO): Going to state 2");
         state = 2;
       }
     break;
@@ -348,7 +341,7 @@ void loop(){
       // Set currentMillis
       currentMillis = millis();
       
-      if ((currentMillis - previousMillis) >= delay_interval) {
+      if ((currentMillis - previousMillis) >= DELAY_1S) {
 
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
@@ -364,18 +357,18 @@ void loop(){
           dataArray[5] = "";
           
           // If active, update dashboard
-          Serial.println("Update Dashboard");
+          Serial.println("...(INFO): Updating Dashboard");
           dataArray[0] = "room " + String(x + 1);         // Create update about room under test
           dataString = "";                                // Reset dataString
           dataString = arrayToString(dataArray);          // Convert data to string
           Serial.println(dataString);                     // Send update 
 
           // This turns on the pump to pull in air into the measuring environment
-          Serial.println("Turning pump on");
+          Serial.println("...(INFO): Turning pump on");
           VRS.pumpOn(true, VRS.rooms[x].getRoomNum() - 1);
 
           // Call function to make sure sensors are level before proceeding
-          Serial.println("Checking sensor leveled out");
+          Serial.println("...(INFO): Checking sensors leveled out");
           checkSensorLevel();
 
           // When sensors are leveled, we can turn off the pump
@@ -383,10 +376,15 @@ void loop(){
 
           // Sensors should be level and we can now take measurements
           //oxygenValue = oxygen.getOxygenData(collectNumber);
-          oxygenValue = 2.5;
-          CO2Percent = explorCO2.getPercent();                                     //get percentage of CO2
-          int roomTemp = 36;                                                       // Placeholder for temperature
-     
+          //oxygenValue = 2.5;
+          potValue1 = analogRead(potpin1);
+          potValue2 = analogRead(potpin2);
+          oxygenValue = 2.5 * potValue1/600;                             //potvalue debug O2 value
+          //CO2Percent = explorCO2.getPercent();                           //get percentage of CO2
+          CO2Percent = explorCO2.getPercent() * potValue2 / 30 ;           //potvalue debug CO2 value
+          int roomTemp = 36;                                              // Placeholder for temperature
+          Serial.println(potValue1);
+          Serial.println(potValue2);
           // Evaluate the room, this function will set the states of the solenoids to their necessary positions (open or closed)
           VRS.rooms[x].evaluateRoom(oxygenValue, CO2Percent);
 

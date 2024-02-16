@@ -18,15 +18,18 @@ class Apple {
     void setCarbonLowLevel(float);
     void setOxygenHighMargin();
     void setOxygenLowMargin();
+    void setCarbonHighMargin();
+    void setCarbonLowMargin();
 
     // Getters
     float getOxygenHighLevel();
     float getOxygenLowLevel();
     float getCarbonHighLevel();
     float getCarbonLowLevel();
-    long getOxygenHighMargin();
-    long getOxygenLowMargin();
-  
+    float getOxygenHighMargin();
+    float getOxygenLowMargin();
+    float getCarbonHighMargin();
+    float getCarbonLowMargin();
   private:
 
     // Fields
@@ -36,8 +39,10 @@ class Apple {
     float carbonHighLevel;
     float carbonLowLevel;
 
-    long oxygenHighMargin;
-    long oxygenLowMargin;
+    float oxygenHighMargin;
+    float oxygenLowMargin;
+    float carbonHighMargin;
+    float carbonLowMargin;
 };
 
 
