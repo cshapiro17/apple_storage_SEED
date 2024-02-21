@@ -73,7 +73,14 @@ String dataString;       // String to hold all data to be sent over serial conne
 //***************************************************************************
 // CREATE APPLE
 //*************************************************************************** 
-Apple TEST_APPLE("Test Apple", 4, 2, 3, 1);
+Apple TEST_APPLE("TEST_APPLE", 0, 0, 0, 0);
+
+// Apple objects being used for testing (These are not accurate numbers)
+Apple Honeycrisp("Honeycrisp", 3, 1, 2, 0);
+
+Apple Fuji("Fuji", 6, 4, 5, 3);
+
+Apple Mcintosh("Mcintosh", 9, 7, 8, 6);
   
 //***************************************************************************
 // CREATE ROOMS
@@ -174,42 +181,42 @@ void updateDashboard(String sysUpdate = "", String room = "", String oxygen = ""
     dataArray[0] = room;                          // Specify room for update
   }
   else {
-    dataArray[0] = "";
+    dataArray[0] = "empty";
   }
 
   if (oxygen != "") {
     dataArray[1] = oxygen;                        // Create oxygen update
   }
   else {
-    dataArray[1] = "";
+    dataArray[1] = "empty";
   }
 
   if (carbon != "") {
     dataArray[2] = carbon;                        // Create carbon update
   }
   else {
-    dataArray[2] = "";
+    dataArray[2] = "empty";
   }
 
   if (temperature != "") {
     dataArray[3] = temperature;                   // Create temperature update
   }
   else {
-    dataArray[3] = "";
+    dataArray[3] = "empty";
   }
 
   if (o2state != "") {
     dataArray[4] = o2state;                       // Create update about oxygen solenoid
   }
   else {
-    dataArray[4] = "";
+    dataArray[4] = "empty";
   }
 
   if (n2state != "") {
     dataArray[5] = n2state;                       // Create update about nitrogen solenoid   
   }
   else {
-    dataArray[5] = "";
+    dataArray[5] = "empty";
   }
 
   if (sysUpdate != "") {
@@ -242,6 +249,24 @@ void checkDashboardInput() {
     else if (funcString == "LED_OFF") {
       // Create call to system function to do something
       digitalWrite(8, LOW);
+    }
+    else if (funcString == "HONEYCRISP_ROOM1") {
+      VRS.rooms[0].setAppleType(Honeycrisp);
+    }
+    else if (funcString == "FUJI_ROOM1") {
+      VRS.rooms[0].setAppleType(Fuji);
+    }
+    else if (funcString == "MCINTOSH_ROOM1") {
+      VRS.rooms[0].setAppleType(Mcintosh);
+    }
+    else if (funcString == "HONEYCRISP_ROOM2") {
+      VRS.rooms[1].setAppleType(Honeycrisp);
+    }
+    else if (funcString == "FUJI_ROOM2") {
+      VRS.rooms[1].setAppleType(Fuji);
+    }
+    else if (funcString == "MCINTOSH_ROOM2") {
+      VRS.rooms[1].setAppleType(Mcintosh);
     }
     else {
       // Invalid input, something went wrong
@@ -438,7 +463,7 @@ void loop(){
         if (VRS.rooms[x].isActive()) {
 
           // Report the room being tested to the dashboard
-          updateDashboard("Testing room " + String(x + 1) + "...");
+          updateDashboard("Testing room " + String(x + 1) + "...", "room" + String(x + 1), "", "", "", "", "");
 
           // This turns on the pump to pull in air into the measuring environment
           VRS.pumpOn(true, VRS.rooms[x].getRoomNum() - 1);
@@ -453,10 +478,10 @@ void loop(){
           // Sensors should be level and we can now take measurements
           
           //oxygenValue = oxygen.getOxygenData(collectNumber);                       // Get oxygen percentage
-          oxygenValue = random(2.5, 3.5);
+          oxygenValue = random(0, 10);
           CO2Percent = explorCO2.getPercent();                                     // Get percentage of CO2
           //CO2Percent = 0.4;
-          float roomTemp = random(33, 35);                                                   // Placeholder for temperature
+          float roomTemp = random(0, 15);                                                   // Placeholder for temperature
      
           // Evaluate the room, this function will set the states of the solenoids to their necessary positions (open or closed)
           VRS.rooms[x].evaluateRoom(oxygenValue, CO2Percent);
@@ -470,7 +495,7 @@ void loop(){
         }
         
         // Change room
-        if (x >= NUM_ROOMS) {
+        if (x >= (NUM_ROOMS - 1)) {
           x = 0;
         }
         else {  
