@@ -26,7 +26,7 @@
  * Define the number of rooms which are in the system
  * This should stay constant
  */
-#define NUM_ROOMS 1
+#define NUM_ROOMS 2
 
 /**
  * Define the pins which connect to the CO2 sensor
