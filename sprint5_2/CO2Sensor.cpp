@@ -86,7 +86,7 @@ int CO2Sensor::getPPM(){
  */
 float CO2Sensor::getPercent(){
   _currentPPM = getPPM();                                   //get CO2 PPM
-  _currentPercent = _currentPPM / 10000.0;                  //convert to a percentage
+  _currentPercent = _currentPPM / 10000.00;                  //convert to a percentage
   return _currentPercent;                                   //return percentage
 }
 
