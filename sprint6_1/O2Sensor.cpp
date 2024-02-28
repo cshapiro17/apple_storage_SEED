@@ -30,15 +30,15 @@ O2Sensor::O2Sensor(){
  * returns nothing
  */
 void O2Sensor::initialize(){
-  Serial.println("Writing single reading command to sensor");
+  //Serial.println("Writing single reading command to sensor");
   Serial2.print("C,0\r");                                      //switch to the polling state
   delay(100);
   _pollState = getOK();                    //record polling state, should always be 2
   if(_pollState == 1){
-    Serial.println("...(SETUP: poll state succesfully connected");
+    //Serial.println("...(SETUP: poll state succesfully connected");
   }
   else{
-    Serial.println("...(SETUP: poll state unsuccesful");
+    //Serial.println("...(SETUP: poll state unsuccesful");
   }
   delay(1000);
   float initialPercent = 0.00;
@@ -47,7 +47,7 @@ void O2Sensor::initialize(){
     getOK();
     delay(100);
   }
-  Serial.println("O2 Setup complete.");
+  //Serial.println("O2 Setup complete.");
 }
 
 
@@ -80,10 +80,10 @@ float O2Sensor::getPercent(){
   _currentPercent = getResponse(writeCommandGetValue);                  //convert to a percentage
   _SensorReady = getOK();                                               //get the *OK message to know response finished
   if(_SensorReady == 1){
-    Serial.println("...(INFO): percent obtained");
+    //Serial.println("...(INFO): percent obtained");
   }
   else{
-    Serial.println("...(INFO): error getting percent");
+    //Serial.println("...(INFO): error getting percent");
   }
   return _currentPercent;                                               //return percentage
 }
@@ -104,8 +104,8 @@ float O2Sensor::getResponse(String command){
     }
   }
   if (sensor_string_complete == true) {               //if a string from the Atlas Scientific product has been received in its entirety
-    Serial.print("...(INFO): sensor String:   ");
-    Serial.println(_response);                     //send that string to the PC's serial monitor   //clear the string:
+    //Serial.print("...(INFO): sensor String:   ");
+    //Serial.println(_response);                     //send that string to the PC's serial monitor   //clear the string:
   sensor_string_complete = false;  
   }
   return _response.toFloat();                         //return the response
@@ -122,8 +122,8 @@ int O2Sensor::getOK(){
     }
   }
   if (sensor_string_complete == true) {               //if a string from the Atlas Scientific product has been received in its entirety
-    Serial.print("OK:   ");
-    Serial.println(_response2);                     //send that string to the PC's serial monitor
+    //Serial.print("OK:   ");
+    //Serial.println(_response2);                     //send that string to the PC's serial monitor
   sensor_string_complete = false;  
   }
   if(_response2.equals("*OK\r")){
