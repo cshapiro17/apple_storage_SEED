@@ -47,7 +47,10 @@ void O2Sensor::initialize(){
     getOK();                                                        //get ok
     delay(1000);                                                    //delay 1s before asking again
   }
+  Serial2.print("C,0\r");                                           //switch to the polling state
+  getOK();
   //Serial.println("O2 Setup complete.");
+  Serial2.flush();
 }
 
 
@@ -75,9 +78,11 @@ void O2Sensor::calibrate(){
  * returns the percent of CO2 as a float
  */
 float O2Sensor::getPercent(){
+  Serial2.flush();
   //Serial.println("In function percent");
   Serial2.print("R\r");                                                 //write to O2 sensor for a reading
   _currentPercent = getResponse(writeCommandGetValue);                  //convert to a percentage
+  Serial.println(_currentPercent);
   _SensorReady = getOK();                                               //get the *OK message to know response finished
   if(_SensorReady == 1){                                                //make sure the OK was received from tester
     //Serial.println("...(INFO): percent obtained");
