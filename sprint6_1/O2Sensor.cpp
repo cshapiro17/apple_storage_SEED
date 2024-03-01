@@ -31,21 +31,21 @@ O2Sensor::O2Sensor(){
  */
 void O2Sensor::initialize(){
   //Serial.println("Writing single reading command to sensor");
-  Serial2.print("C,0\r");                                      //switch to the polling state
-  delay(100);
-  _pollState = getOK();                    //record polling state, should always be 2
-  if(_pollState == 1){
+  Serial2.print("C,0\r");                                           //switch to the polling state
+  delay(100);                                                       //delay 100 ms
+  _pollState = getOK();                                             //check if ok registered (not working right now)
+  if(_pollState == 1){                                              //if we return a 1, the ok was registered and a success
     //Serial.println("...(SETUP: poll state succesfully connected");
   }
-  else{
+  else{                                                             //if not, there was an error(trying to figure out why)
     //Serial.println("...(SETUP: poll state unsuccesful");
   }
-  delay(1000);
-  float initialPercent = 0.00;
-  while(initialPercent == 0){
-    initialPercent = getPercent();
-    getOK();
-    delay(100);
+  delay(1000);                                                      //delay 1s
+  float initialPercent = 0.00;                                      //initial percent value
+  while(initialPercent == 0){                                       //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
+    initialPercent = getPercent();                                  //get percent
+    getOK();                                                        //get ok
+    delay(1000);                                                    //delay 1s before asking again
   }
   //Serial.println("O2 Setup complete.");
 }
@@ -79,13 +79,13 @@ float O2Sensor::getPercent(){
   Serial2.print("R\r");                                                 //write to O2 sensor for a reading
   _currentPercent = getResponse(writeCommandGetValue);                  //convert to a percentage
   _SensorReady = getOK();                                               //get the *OK message to know response finished
-  if(_SensorReady == 1){
+  if(_SensorReady == 1){                                                //make sure the OK was received from tester
     //Serial.println("...(INFO): percent obtained");
   }
-  else{
+  else{                                                                 //if ok not received, something is wrong
     //Serial.println("...(INFO): error getting percent");
   }
-  return _currentPercent;                                               //return percentage
+  return _currentPercent;                                               //return percentage read from sensor
 }
 
 /* CO2Sensor getResponse
@@ -94,43 +94,42 @@ float O2Sensor::getPercent(){
  * returns the number as an integer from the response 
  */
 float O2Sensor::getResponse(String command){
-  _response = ""; 
-  while (Serial2.available() > 0) {
-    char incomingByte = (char)Serial2.read();           // Read the incoming byte.
-    _response += incomingByte;
-    if (incomingByte == '\r') {                             //if the incoming character is a <CR>
-      sensor_string_complete = true;                  //set the flag
-      break;
+  _response = "";                                                   //clear the response
+  while (Serial2.available() > 0) {                                 //while the O2 sensor port is available
+    char incomingByte = (char)Serial2.read();                       //Read the incoming byte.
+    _response += incomingByte;                                      //add it to the response
+    if (incomingByte == '\r') {                                     //if the incoming character is a <CR>
+      sensor_string_complete = true;                                //set the flag that it has been received (not important, but could be used)
+      break;                                                        //break out of while loop
     }
   }
-  if (sensor_string_complete == true) {               //if a string from the Atlas Scientific product has been received in its entirety
+  if (sensor_string_complete == true) {                             //if a string from the O2 sensor has been received in its entirety
     //Serial.print("...(INFO): sensor String:   ");
-    //Serial.println(_response);                     //send that string to the PC's serial monitor   //clear the string:
   sensor_string_complete = false;  
   }
-  return _response.toFloat();                         //return the response
+  return _response.toFloat();                                       //return the full response
 }
 
 int O2Sensor::getOK(){
-  _response2 = ""; 
-  while (Serial2.available() > 0) {
-    char incomingByte = (char)Serial2.read();           // Read the incoming byte.
-    _response2 += incomingByte;
-    if (incomingByte == '\r') {                             //if the incoming character is a <CR>
-      sensor_string_complete = true;                  //set the flag
-      break;
+  _response2 = "";                                                  //clear OK response variable
+  while (Serial2.available() > 0) {                                 //while the O2 sensor port is available
+    char incomingByte = (char)Serial2.read();                       // Read the incoming byte.
+    _response2 += incomingByte;                                     //add it to the response
+    if (incomingByte == '\r') {                                     //if the incoming character is a <CR>
+      sensor_string_complete = true;                                //set the flag
+      break;                                                        //break
     }
   }
-  if (sensor_string_complete == true) {               //if a string from the Atlas Scientific product has been received in its entirety
+  if (sensor_string_complete == true) {                             //if a string from the Atlas Scientific product has been received in its entirety
     //Serial.print("OK:   ");
-    //Serial.println(_response2);                     //send that string to the PC's serial monitor
+    //Serial.println(_response2);                                   //send that string to the PC's serial monitor
   sensor_string_complete = false;  
   }
-  if(_response2.equals("*OK\r")){
-    return 1;
+  if(_response2.equals("*OK\r")){                                   //if the response is what we expect (an OK)
+    return 1;                                                       //return 1
   }
-  else{
-    return 0;
+  else{                                                             //if not
+    return 0;                                                       //return 0
   }
 }  
 
