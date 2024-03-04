@@ -33,6 +33,8 @@ void O2Sensor::initialize(){
   Serial.println("In Initialize Function");
   Serial2.print("FACTORY\r");
   delay(2000);
+  Serial2.print("Plock,1\r");
+  delay(2000);
   Serial2.print("*OK,0\r");
   delay(100);
   Serial2.print("C,0\r");                                           //switch to the polling state
