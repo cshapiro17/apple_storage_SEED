@@ -30,25 +30,36 @@ O2Sensor::O2Sensor(){
  * returns nothing
  */
 void O2Sensor::initialize(){
-  //Serial.println("Writing single reading command to sensor");
+  Serial.println("In Initialize Function");
+  Serial2.print("FACTORY\r");
+  delay(2000);
+  Serial2.print("*OK,0\r");
+  delay(100);
   Serial2.print("C,0\r");                                           //switch to the polling state
   delay(100);                                                       //delay 100 ms
-  _pollState = getOK();                                             //check if ok registered (not working right now)
-  if(_pollState == 1){                                              //if we return a 1, the ok was registered and a success
-    //Serial.println("...(SETUP: poll state succesfully connected");
+  // _pollState = getOK();                                             //check if ok registered (not working right now)
+  // if(_pollState == 1){                                              //if we return a 1, the ok was registered and a success
+  //   //Serial.println("...(SETUP: poll state succesfully connected");
+  // }
+  // else{                                                             //if not, there was an error(trying to figure out why)
+  //   //Serial.println("...(SETUP: poll state unsuccesful");
+  // }
+  float setupPercent = 0.00;                                      //initial percent value
+  int setupComplete;
+  while(setupComplete <= 3){                                       //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
+    Serial.println("waiting for setup");
+    setupPercent = getPercent();                                  //get percent
+    if(setupPercent != 0.00){
+      setupComplete ++;
+    }
+    else{
+      setupComplete = 0;
+    }
+    //getOK();                                                        //get ok
+    delay(2000);                                                    //delay 1s before asking again
   }
-  else{                                                             //if not, there was an error(trying to figure out why)
-    //Serial.println("...(SETUP: poll state unsuccesful");
-  }
-  delay(1000);                                                      //delay 1s
-  float initialPercent = 0.00;                                      //initial percent value
-  while(initialPercent == 0){                                       //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
-    initialPercent = getPercent();                                  //get percent
-    getOK();                                                        //get ok
-    delay(1000);                                                    //delay 1s before asking again
-  }
-  Serial2.print("C,0\r");                                           //switch to the polling state
-  getOK();
+  // Serial2.print("C,0\r");                                           //switch to the polling state
+  //getOK();
   //Serial.println("O2 Setup complete.");
   Serial2.flush();
 }
@@ -78,19 +89,20 @@ void O2Sensor::calibrate(){
  * returns the percent of CO2 as a float
  */
 float O2Sensor::getPercent(){
-  Serial2.flush();
   //Serial.println("In function percent");
   Serial2.print("R\r");                                                 //write to O2 sensor for a reading
   _currentPercent = getResponse(writeCommandGetValue);                  //convert to a percentage
-  Serial.print("Current Percent: ");
-  Serial.println(_currentPercent);
-  _SensorReady = getOK();                                               //get the *OK message to know response finished
+  //Serial.print("Current Percent: ");
+  //Serial.println(_currentPercent);
+  //_SensorReady = getOK();                                               //get the *OK message to know response finished
   // if(_SensorReady == 1){                                                //make sure the OK was received from tester
   //   //Serial.println("...(INFO): percent obtained");
   // }
   // else{                                                                 //if ok not received, something is wrong
   //   //Serial.println("...(INFO): error getting percent");
   // }
+  Serial.print("in get percent  ");
+  Serial.println(_currentPercent);
   return _currentPercent;                                               //return percentage read from sensor
 }
 
@@ -113,8 +125,8 @@ float O2Sensor::getResponse(String command){
     //Serial.print("...(INFO): sensor String:   ");
   sensor_string_complete = false;  
   }
-  Serial.print("In Get Response: ");
-  Serial.println(_response);
+  //Serial.print("In Get Response: ");
+  //Serial.println(_response);
   return _response.toFloat();                                       //return the full response
 }
 
@@ -133,8 +145,8 @@ int O2Sensor::getOK(){
     //Serial.println(_response2);                                   //send that string to the PC's serial monitor
   sensor_string_complete = false;  
   }
-  Serial.print("OK Statement: ");
-  Serial.println(_response2);
+  //Serial.print("OK Statement: ");
+  //Serial.println(_response2);
   if(_response2.equals("*OK\r")){                                   //if the response is what we expect (an OK)
     return 1;                                                       //return 1
   }

@@ -28,13 +28,14 @@ void setup() {                                        //set up the hardware
   sensorstring.reserve(30);                           //set aside some bytes for receiving data from Atlas Scientific product
   EZO2.initialize();                                  //inital setup of O2 sensor
   delay(100);
+  Serial.println("done setup");
 }
 
 void loop() {                                         //here we go...
   // if(count == 0){
   //   EZO2.initialize();
   // }
-  if(count == 5){                                     //every 5 seconds get another reading
+  if(count == 3){                                     //every 5 seconds get another reading
     reading = EZO2.getPercent();
     Serial.println(reading);                          //print reading
     count = 0;                                        //reset count
