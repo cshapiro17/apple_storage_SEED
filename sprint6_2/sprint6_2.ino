@@ -12,6 +12,7 @@
 #include "MillisTimerLib.h"
 #include "DFRobot_OxygenSensor.h"
 #include "CO2Sensor.h"
+#include "O2Sensor.h"
 
 
 // **************************************************************************
@@ -49,14 +50,11 @@ float CO2Percent;
 
 //****************************************************************************
 // OXYGEN VARIABLES
-// Likely to be replaced by new O2 sensor
 //****************************************************************************
 float oxygenValue;
 float currentO2;
 float previousO2;
-DFRobot_OxygenSensor oxygen;
-#define collectNumber 10
-#define Oxygen_IIC_Address ADDRESS_3\
+O2Sensor EZO2;
   
 
 //***************************************************************************
@@ -89,32 +87,32 @@ Apple Mcintosh("Mcintosh", 9, 7, 8, 6);
 //***************************************************************************
 // If room 1 is defined than set up room 1
 #ifdef ROOM_1_NAME
-  Room4 room1(ROOM_1_NAME, 1, TEST_APPLE, R1_O2_SOLENOID_PIN, R1_N2_SOLENOID_PIN, R1_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room1(ROOM_1_NAME, 1, TEST_APPLE, R1_O2_FAN_PIN, R1_N2_SOLENOID_PIN, R1_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 2 is defined than set up room 2
 #ifdef ROOM_2_NAME
-  Room4 room2(ROOM_2_NAME, 2, TEST_APPLE, R2_O2_SOLENOID_PIN, R2_N2_SOLENOID_PIN, R2_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room2(ROOM_2_NAME, 2, TEST_APPLE, R2_O2_FAN_PIN, R2_N2_SOLENOID_PIN, R2_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 3 is defined than set up room 3
 #ifdef ROOM_3_NAME
-  Room4 room3(ROOM_3_NAME, 3, TEST_APPLE, R3_O2_SOLENOID_PIN, R3_N2_SOLENOID_PIN, R3_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room3(ROOM_3_NAME, 3, TEST_APPLE, R3_O2_FAN_PIN, R3_N2_SOLENOID_PIN, R3_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 4 is defined than set up room 4
 #ifdef ROOM_4_NAME
-  Room4 room4(ROOM_4_NAME, 4, TEST_APPLE, R4_O2_SOLENOID_PIN, R4_N2_SOLENOID_PIN, R4_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room4(ROOM_4_NAME, 4, TEST_APPLE, R4_O2_FAN_PIN, R4_N2_SOLENOID_PIN, R4_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 5 is defined than set up room 5
 #ifdef ROOM_5_NAME
-  Room4 room5(ROOM_5_NAME, 5, TEST_APPLE, R5_O2_SOLENOID_PIN, R5_N2_SOLENOID_PIN, R5_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room5(ROOM_5_NAME, 5, TEST_APPLE, R5_O2_FAN_PIN, R5_N2_SOLENOID_PIN, R5_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 6 is defined than set up room 6
 #ifdef ROOM_6_NAME
-  Room4 room6(ROOM_6_NAME, 6, TEST_APPLE, R6_O2_SOLENOID_PIN, R6_N2_SOLENOID_PIN, R6_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room6(ROOM_6_NAME, 6, TEST_APPLE, R6_O2_FAN_PIN, R6_N2_SOLENOID_PIN, R6_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 
@@ -152,7 +150,7 @@ void checkSensorLevel() {
 
   // Fill the arrays
   for (int i = 0; i < size; i++) {
-    o2Array[i] = oxygen.getOxygenData(collectNumber);
+    o2Array[i] = EZO2.getPercent();
     co2Array[i] = explorCO2.getPercent();
 
     // Delay to allow for more air to pump in
@@ -190,7 +188,7 @@ void checkSensorLevel() {
     else {
       
       // Replace oldest value
-      o2Array[oldestValue] = oxygen.getOxygenData(collectNumber);
+      o2Array[oldestValue] = EZO2.getPercent();
       co2Array[oldestValue] = explorCO2.getPercent();
 
       // Oldest value is now next value in the array
@@ -334,14 +332,16 @@ void checkDashboardInput() {
       VRS.rooms[room_num - 1].activate();
 
       updateDashboard("'Room " + String(room_num) + " activated'");
+      delay(DASH_DELAY);
     }
     else if (keyword == "deactivateRoom") {
       VRS.rooms[room_num - 1].deactivate();
 
       updateDashboard("'Room " + String(room_num) + " deactivated'");
+      delay(DASH_DELAY);
     }
     else if (keyword == "oxygenSolOff") {
-      VRS.rooms[room_num - 1].setO2solState(0);
+      VRS.rooms[room_num - 1].setO2fanState(0);
 
       updateDashboard("'Room " + String(room_num) + " oxygen solenoid closed'");
     }
@@ -351,7 +351,7 @@ void checkDashboardInput() {
       updateDashboard("'Room " + String(room_num) + " nitrogen solenoid closed'");
     }
     else if (keyword == "oxygenSolOn") {
-      VRS.rooms[room_num - 1].setO2solState(1);
+      VRS.rooms[room_num - 1].setO2fanState(1);
 
       updateDashboard("'Room " + String(room_num) + " oxygen solenoid opened'");
     }
@@ -422,11 +422,11 @@ void setup() {
   // If room 1 is defined than set up room 1
   #ifdef ROOM_1_NAME
     VRS.addRoom(room1);                                                     // Add the room to the system
-    // VRS.rooms[0].deactivate();                                              // Room shall be deactivated until activated in the dashboard
+    VRS.rooms[0].deactivate();                                              // Room shall be deactivated until activated in the dashboard
 
-    VRS.rooms[0].activate(); // For testing
+    //VRS.rooms[0].activate(); // For testing
 
-    pinMode(VRS.rooms[0].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 1
+    pinMode(VRS.rooms[0].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 1
     pinMode(VRS.rooms[0].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 1
     pinMode(VRS.rooms[0].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 1
   #endif
@@ -434,11 +434,11 @@ void setup() {
   // If room 2 is defined than set up room 2
   #ifdef ROOM_2_NAME
     VRS.addRoom(room2);                                                     // Add the room to the system
-    // VRS.rooms[1].deactivate();                                              // Room shall be deactivated until activated in the dashboard
+    VRS.rooms[1].deactivate();                                              // Room shall be deactivated until activated in the dashboard
 
-    VRS.rooms[1].activate(); // For testing
+    //VRS.rooms[1].activate(); // For testing
 
-    pinMode(VRS.rooms[1].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 2
+    pinMode(VRS.rooms[1].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 2
     pinMode(VRS.rooms[1].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 2
     pinMode(VRS.rooms[1].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 2
   #endif
@@ -450,19 +450,19 @@ void setup() {
 
     VRS.rooms[2].activate(); // For testing
 
-    pinMode(VRS.rooms[2].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 3
+    pinMode(VRS.rooms[2].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 3
     pinMode(VRS.rooms[2].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 3
     pinMode(VRS.rooms[2].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 3
   #endif
 
   // If room 4 is defined than set up room 4
   #ifdef ROOM_4_NAME
-    VRS.addRoom(room4);                                                     // Add the room to the system
+    VRS.addRoom(Room);                                                     // Add the room to the system
     // VRS.rooms[3].deactivate();                                              // Room shall be deactivated until activated in the dashboard
         
     VRS.rooms[3].activate(); // For testing
 
-    pinMode(VRS.rooms[3].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 4
+    pinMode(VRS.rooms[3].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 4
     pinMode(VRS.rooms[3].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 4
     pinMode(VRS.rooms[3].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 4
   #endif
@@ -475,7 +475,7 @@ void setup() {
     VRS.rooms[4].activate(); // For testing
  
 
-    pinMode(VRS.rooms[4].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 5
+    pinMode(VRS.rooms[4].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 5
     pinMode(VRS.rooms[4].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 5
     pinMode(VRS.rooms[4].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 5
   #endif
@@ -487,7 +487,7 @@ void setup() {
 
     VRS.rooms[5].activate(); // For testing
 
-    pinMode(VRS.rooms[5].getOxygenSolenoidPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 6
+    pinMode(VRS.rooms[5].getOxygenFanPin(), OUTPUT);                   // Initialize the pin for the oxygen solenoid in room 6
     pinMode(VRS.rooms[5].getNitrogenSolenoidPin(), OUTPUT);                 // Initialize the pin for the nitrogen solenoid in room 6
     pinMode(VRS.rooms[5].getSensingSolenoidPin(), OUTPUT);                  // Initialize the pin for the sensing solenoid in room 6
   #endif
@@ -496,18 +496,27 @@ void setup() {
   // GENERAL SETUP
   // ****************************************************************************
   // Initialize serial connection @ 9600 Baud Rate for serial monitor/dashboard communication
+  // Initialize serial connection @ 9600 Baud Rate for serial monitor
   Serial.begin(9600);
   // Wait for serial port to open
   while(!Serial);
-  
-  // Initialize Serial1 communication @ 9600 Baud Rate for CO2 sensor (RX/TX 0)
+
+  //initialize Serial1 communication @ 9600 Baud Rate for CO2 sensor (RX/TX 0)
   Serial1.begin(9600);
   // Wait for serial1 port to open
   while(!Serial1);
 
+  //initialize Serial2 communication @ 9600 Baud Rate for O2 sensor (RX/TX 1)
+  Serial2.begin(9600);
+  // Wait for serial1 port to open
+  while(!Serial2);
+
   // EXPLORIR CO2 connection
   explorCO2.initialize();
   delay(CO2_CONNECT_DELAY); 
+
+  EZO2.initialize();
+  delay(O2_CONNECT_DELAY);
 
   // Rand num generator
   randomSeed(analogRead(0)); 
@@ -587,6 +596,7 @@ void loop(){
         previousMillis = currentMillis;
         
         // All code relavent to calibrating the sensors will be located here
+        explorCO2.calibrate();
 
         // Report the calibration status to the dashboard
         updateDashboard("'Calibrating...'"); 
@@ -639,21 +649,24 @@ void loop(){
 
           // Sensors should be level and we can now take measurements
           
-          //oxygenValue = oxygen.getOxygenData(collectNumber);                       // Get oxygen percentage
-          oxygenValue = random(0, 10);
+          oxygenValue = EZO2.getPercent();                                           // Get oxygen percentage
+          //oxygenValue = random(0, 10);
+
+          delay(5000);
+
           CO2Percent = explorCO2.getPercent();                                     // Get percentage of CO2
           //CO2Percent = 0.4;
-          float roomTemp = random(0, 15);                                                   // Placeholder for temperature
+          float roomTemp = random(20,35);                                               // Placeholder for temperature
      
           // Evaluate the room, this function will set the states of the solenoids to their necessary positions (open or closed)
           VRS.rooms[x].evaluateRoom(oxygenValue, CO2Percent);
 
           // Get the states of each solenoid
-          int oxygenSolenoidState = VRS.rooms[x].getO2solState();
+          int oxygenFanState = VRS.rooms[x].getO2fanState();
           int nitrogenSolenoidState = VRS.rooms[x].getN2solState();
 
           // Report measurements to dashboard
-          updateDashboard("'System OK'", "room" + String(x + 1), String(oxygenValue), String(CO2Percent), String(roomTemp), String(oxygenSolenoidState), String(nitrogenSolenoidState));
+          updateDashboard("'System OK'", "room" + String(x + 1), String(oxygenValue), String(CO2Percent), String(roomTemp), String(oxygenFanState), String(nitrogenSolenoidState));
         }
         
         // Change room
@@ -699,7 +712,7 @@ void loop(){
         // Make sure that everything is in "Stand by" mode by closing all solenoid valves
         for (int i = 0; i < NUM_ROOMS; i++) {
           VRS.rooms[i].setN2solState(0);
-          VRS.rooms[i].setO2solState(0);
+          VRS.rooms[i].setO2fanState(0);
           VRS.rooms[i].setSenseSolState(0);
         }
 
