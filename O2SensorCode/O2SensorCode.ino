@@ -29,6 +29,8 @@ void setup() {                                        //set up the hardware
   EZO2.initialize();                                  //inital setup of O2 sensor
   delay(100);
   Serial.println("done setup");
+  //EZO2.calibrate();
+  //Serial2.flush();
 }
 
 void loop() {                                         //here we go...

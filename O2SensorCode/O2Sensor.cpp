@@ -25,32 +25,26 @@ O2Sensor::O2Sensor(){
 
 /* CO2Sensor Initialize block
  * Sets the sensor to a polling state
- * Finds and Records Filter value
- * Finds and Records Multiplier Value
+ * Turns off OK responses
+ * locks the system to UART only
  * returns nothing
  */
 void O2Sensor::initialize(){
-  Serial.println("In Initialize Function");
-  Serial2.print("FACTORY\r");
-  delay(2000);
-  Serial2.print("Plock,1\r");
-  delay(2000);
-  Serial2.print("*OK,0\r");
-  delay(100);
+  //Serial2.print("FACTORY\r");
+  Serial2.print("*OK,0\r");                                         //turn off OK responses
+  delay(500);
+  Serial2.print("Plock,1\r");                                       //set the lock to UART only
+  delay(100);                                             
   Serial2.print("C,0\r");                                           //switch to the polling state
+  delay(100);
+  Serial2.flush();                                                  //flush the serial2 port
   delay(100);                                                       //delay 100 ms
-  // _pollState = getOK();                                             //check if ok registered (not working right now)
-  // if(_pollState == 1){                                              //if we return a 1, the ok was registered and a success
-  //   //Serial.println("...(SETUP: poll state succesfully connected");
-  // }
-  // else{                                                             //if not, there was an error(trying to figure out why)
-  //   //Serial.println("...(SETUP: poll state unsuccesful");
-  // }
-  float setupPercent = 0.00;                                      //initial percent value
+
+  float setupPercent = 0.00;                                        //initial percent value
   int setupComplete;
-  while(setupComplete <= 3){                                       //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
+  while(setupComplete <= 3){                                        //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
     Serial.println("waiting for setup");
-    setupPercent = getPercent();                                  //get percent
+    setupPercent = getPercent();                                    //get percent
     if(setupPercent != 0.00){
       setupComplete ++;
     }
@@ -60,30 +54,25 @@ void O2Sensor::initialize(){
     //getOK();                                                        //get ok
     delay(2000);                                                    //delay 1s before asking again
   }
-  // Serial2.print("C,0\r");                                           //switch to the polling state
-  //getOK();
   //Serial.println("O2 Setup complete.");
   Serial2.flush();
 }
 
 
-/* CO2Sensor Calibrate block
- * Calibrates the sensor to atmospheric air (400 PPM)
- * Checks that the Value after the fact is around 400 PPM to signal correct calibration
+/* O2Sensor Calibrate block
+ * Calibrates the sensor to atmospheric air (20.9%)
+ * Checks that the Value after the fact is around 20.9% to signal correct calibration
  * returns nothing
  */
 void O2Sensor::calibrate(){
-  // Serial2.write(writeCommandCalibrate);                     //calibrate command
-  // delay(2000);
-  // Serial2.write(writeCommandGetValue);                      //get CO2 value
-  // delay(100);                                               //100 ms delay to allow process time       
-  // _calibrateValue = getResponse(writeCommandCalibrate);     //get the calibrate value, even though this number does not matter
-  // if(_calibrateValue*_multiplier <390 || _calibrateValue*_multiplier > 410){   //make sure it is around the expected value
-  //   Serial.println("error calibrating CO2 sensor");
-  // }
-  // else{
-  //   Serial.println("CO2 calibration success");
-  // }
+  Serial2.write("Cal,20.90\r");                          //calibrate command
+  delay(5000);                                            //wait 5 seconds
+
+  float calibrateValue = getPercent();                    //take a reading after calibration
+  while(calibrateValue < 20.0 || calibrateValue > 22.0){  //if its not around atmosphere, get another reading until it is whats expected
+    delay(2000);                                          //wait 2 seconds if not correct percent
+    calibrateValue = getPercent();                         //get another value
+  }
 }
 
 /* CO2Sensor getPercent
