@@ -33,6 +33,8 @@ class Apple {
     long getOxygenHighMargin();
     long getOxygenLowMargin();
     String getAppleName();
+
+    void modifyAppleParams(String);
   
   private:
 

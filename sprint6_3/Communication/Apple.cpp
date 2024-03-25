@@ -131,3 +131,18 @@ void Apple::setOxygenLowMargin() {
 void Apple::setAppleName(String appleNameInput) {
   appleName = appleNameInput;
 }
+
+/* Function which uses a string of parameters to update the apple thresholds
+ * Takes in a string representing the updated parameters
+ * Returns nothing
+ */
+void Apple::modifyAppleParams(String appleParams) {
+  // Parse the messgae
+
+  // 0/0/0/0
+  
+  
+  // Call functions to set the values
+
+  // Call margin functions to reset those values
+}

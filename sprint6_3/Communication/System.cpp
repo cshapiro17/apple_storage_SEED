@@ -12,10 +12,12 @@ System::System() : systemName("Apple Storage Control"), systemOn(false) {
 }
 
 // Constructor
-System::System(String systemName, int pumpPin, int pumpState, int numRooms) {
+System::System(String systemName, int pumpPin, int pumpState, int atmPin, int atmState, int numRooms) {
   setSystemName(systemName);
   setPumpPin(pumpPin);
   setPumpState(pumpState);
+  setAtmSolPin(atmPin);
+  setAtmSolState(atmState);
   setNumRooms(numRooms);
   setSystemState(false);
 
@@ -47,6 +49,8 @@ void System::setPumpPin(int pumpPin) {
  */
 void System::setPumpState(int pumpState) {
   sensingPump.pumpState = pumpState;
+
+  digitalWrite(sensingPump.pin, sensingPump.pumpState);
 }
 
 /* Setter for the number of rooms in the system
@@ -63,8 +67,41 @@ void System::setNumRooms(int numRoomsInput) {
  */
 void System::setSystemState(bool systemState) {
   systemOn = systemState;
+
+  if (!systemOn) {
+
+    // Deactivate each room
+    for (int i = 0; i < rooms.size(); i++) {
+      rooms[i].deactivate();
+    }
+
+    // Turn off atmospheric solenoid
+    setAtmSolState(0);
+
+    // Turn off pump
+    setPumpState(0);
+
+  }
 }
 
+/* Setter for the pin of the atmospheric solenoid which is used for calibration
+ * Takes in an integer representing the pin of the solenoid
+ * Returns nothing
+ */
+void System::setAtmSolPin(int atmSolPin) {
+  atmSol.atmSolPin = atmSolPin;
+}
+
+/* Setter for the state of the atmospheric solenoid
+ * Takes in an integer representing the state of the solenoid
+ * Returns nothing
+ */
+void System::setAtmSolState(int atmSolState) {
+  atmSol.atmSolState = atmSolState;
+
+  // Turn on or off the solenoid accordingly
+  digitalWrite(atmSol.atmSolPin, atmSol.atmSolState);
+}
 
 /*
  * Getter for system name
@@ -74,7 +111,6 @@ void System::setSystemState(bool systemState) {
 String System::getSystemName() {
   return systemName;
 }
-
 
 /*
  * Getter for the pin which controls the pump
@@ -107,6 +143,22 @@ int System::getNumRooms() {
  */
 bool System::getSystemState() {
   return systemOn;
+}
+
+/* Getter for the pin of the atmospheric solenoid
+ * Takes in nothing
+ * Returns the pin for the atmospheric solenoid as an int
+ */
+int System::getAtmSolPin() {
+  return atmSol.atmSolPin;
+}
+
+/* Getter for the state of the atmospheric solenoid
+ * Takes in nothing
+ * Returns the state of the atmospheric solenoid as an int
+ */
+int System::getAtmSolState() {
+  return atmSol.atmSolState;
 }
 
 /*
@@ -157,25 +209,37 @@ bool System::removeApple(String appleName) {
 *  Inputs: boolean pumpSwitch, whether the pump should be turned on or off
 *  Outputs: rights to serial monitor whether the pump is on or off when called
 */
-void System::pumpOn(boolean pumpSwitch, int roomNum){
-  if(pumpSwitch){
-    
-    // Set solenoid to open and turn pump on
-    digitalWrite(rooms[roomNum].senseSol.sensePin, HIGH);
-    digitalWrite(sensingPump.pin, HIGH);
+void System::pumpOn(bool pumpSwitch, int roomNum){
 
-    sensingPump.pumpState = 1;
+  if(pumpSwitch){
+
+    // Check to see if atmospheric solenoid should be opened
+    if (roomNum == 101) {
+      // Open the atmospheric solenoid
+      setAtmSolState(1);
+    }
+    else {
+      // Open the solenoid to the room
+      rooms[roomNum].setSenseSolState(1);
+    }
+    // Turn on pump
+    setPumpState(1);
     
     delay(10);
   }
   else{
-    
-    // Set solenoid to closed and turn pump off
-    digitalWrite(rooms[roomNum].senseSol.sensePin, LOW);
-    digitalWrite(sensingPump.pin, LOW);
 
-    // Set pump s
-    sensingPump.pumpState = 0;
+    // Check to see if atmospheric solenoid should be opened
+    if (roomNum == 101) {
+      // Close the atmospheric solenoid
+      setAtmSolState(0);
+    }
+    else {
+      // Close the solenoid to the room
+      rooms[roomNum].setSenseSolState(0);
+    }
+    // Turn off pump
+    setPumpState(0);
     
     delay(10);
   }

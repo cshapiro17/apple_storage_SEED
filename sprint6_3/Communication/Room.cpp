@@ -40,6 +40,11 @@ void Room::activate(){
  */
 void Room::deactivate(){
     active = false;
+
+    // Set all solenoids and fans to be off since the room is not active
+    setO2fanState(0);
+    setN2solState(0);
+    setSenseSolState(0);
 }
 
 /* Evaluate is used to measure the value of the sensor readings and determine if a
@@ -220,6 +225,9 @@ void Room::setSensingSolenoidPin(int solPin) {
  */
 void Room::setSenseSolState(int senseState) {
   senseSol.senseState = senseState;
+
+  // Turn on or off the solenoid accordingly
+  digitalWrite(senseSol.sensePin, senseSol.senseState);
 }
 
 /* Setter for the name of the room

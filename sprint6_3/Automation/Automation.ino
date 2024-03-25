@@ -43,71 +43,101 @@ int systemOn;
  * Takes in nothing
  * Returns nothing
  */
-void checkSensorLevel() {
-
-  // This delay can be used to run the pump for a certain amount of time before checking levels
-  delay(PUMP_DELAY);
-
-  int secondsPumping = 0;
+void checkSensorLevel(int x) {
 
   bool sensorsLevel = false;
+  bool exit = false;
 
   int oldestValue = 0;
   int size = 3;
-  float sumO2 = 0.0, sumCO2 = 0.0, meanO2, meanCO2, variationO2, variationCO2, sdO2, sdCO2;
+  float sumO2 = 0.0, sumCO2 = 0.0, meanO2 = 0.0, meanCO2 = 0.0, variationO2 = 0.0, variationCO2 = 0.0, sdO2, sdCO2;
 
   float o2Array[3] = {};
   float co2Array[3] = {};
+  
+  /*
+  We should pump in air for a set amount of time but we also want to check
+  for many system conditions. To do this, we will check every second and exit
+  if necessary
+  */
 
-  // Fill the arrays
-  for (int i = 0; i < size; i++) {
-    o2Array[i] = RPC.call("getO2Reading").as<float>();
-    co2Array[i] = RPC.call("getCO2Reading").as<float>();
 
-    // Delay to allow for more air to pump in
-    delay(1000);
-  }
+  for (int i = 0; i < PUMP_DELAY; i++) {
+    int roomActive = RPC.call("checkRoomActive", x).as<int>();
 
-  while(sensorsLevel) {
-
-    // Get sum of arrays
-    for (int i = 0; i < size; i++) {
-      sumO2 += o2Array[i];
-      sumCO2 += co2Array[i]; 
-    }
-
-    // Get mean of arrays
-    meanO2 = sumO2 / size;
-    meanCO2 = sumCO2 / size;
-
-    // Find variation
-    for (int i = 0; i < size; ++i) { 
-          variationO2 += pow(o2Array[i] - meanO2, 2); 
-          variationCO2 += pow(co2Array[i] - meanCO2, 2);
-      } 
-
-    // Find standard deviation
-    sdO2 = sqrt(variationO2 / size);
-    sdCO2 = sqrt(variationCO2 / size);
-
-    // Check to see if the oxygen sensor and carbon dioxide sensor are consistent
-    if(sdO2 < 0.1 && sdCO2 < 0.1){ 
-
-      // Sensors are level and while loop will break
-      sensorsLevel = true;
+    if (roomActive == 0) {
+      exit = true;
+      break;
     }
     else {
-      
-      // Replace oldest value
-      o2Array[oldestValue] = RPC.call("getO2Reading").as<float>();
-      co2Array[oldestValue] = RPC.call("getCO2Reading").as<float>();
+      delay(DELAY_1_SEC);
+    }
+  }
 
-      // Oldest value is now next value in the array
-      if (oldestValue == 2) {
-        oldestValue = 0;
+  if (!exit) {
+    // Fill the arrays
+    for (int i = 0; i < size; i++) {
+      int roomActive = RPC.call("checkRoomActive", x).as<int>();
+
+      if (roomActive == 0) {
+        exit = true;
+        break;
+      }
+
+      o2Array[i] = RPC.call("getO2Reading").as<float>();
+
+      delay(250);
+
+      co2Array[i] = RPC.call("getCO2Reading").as<float>();
+
+      // Delay to allow for more air to pump in
+      delay(CALIBRATION_VALUE_DELAY * DELAY_1_SEC);
+    }
+
+    while(!sensorsLevel && !exit) {
+
+      // Get sum of arrays
+      for (int i = 0; i < size; i++) {
+        sumO2 += o2Array[i];
+        sumCO2 += co2Array[i]; 
+      }
+
+      // Get mean of arrays
+      meanO2 = sumO2 / size;
+      meanCO2 = sumCO2 / size;
+
+      // Find variation
+      for (int i = 0; i < size; ++i) { 
+            variationO2 += pow(o2Array[i] - meanO2, 2); 
+            variationCO2 += pow(co2Array[i] - meanCO2, 2);
+        } 
+
+      // Find standard deviation
+      sdO2 = sqrt(variationO2 / size);
+      sdCO2 = sqrt(variationCO2 / size);
+
+      // Check to see if the oxygen sensor and carbon dioxide sensor are consistent
+      if(sdO2 < 0.5 && sdCO2 < 0.5){ 
+
+        // Sensors are level and while loop will break
+        sensorsLevel = true;
       }
       else {
-        oldestValue++;
+        
+        // Replace oldest value
+        o2Array[oldestValue] = RPC.call("getO2Reading").as<float>();
+
+        delay(250);
+
+        co2Array[oldestValue] = RPC.call("getCO2Reading").as<float>();
+
+        // Oldest value is now next value in the array
+        if (oldestValue == 2) {
+          oldestValue = 0;
+        }
+        else {
+          oldestValue++;
+        }
       }
     }
   }
@@ -116,9 +146,6 @@ void checkSensorLevel() {
 void setup() {
 
   RPC.begin();
-
-  // For testing
-  randomSeed(analogRead(0));
 
   // Go to administrative state
   state = 1;
@@ -142,10 +169,7 @@ void loop() {
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
 
-        /*
-        RPC.println("In M4 state 1");
-        delay(1000);
-        */
+        //RPC.call("updateDashM4", "'In state 1'");
 
         // RPC to get state of the system
         systemOn = RPC.call("systemOn").as<int>();
@@ -184,21 +208,29 @@ void loop() {
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
 
-        /*
-        RPC.println("In M4 state 2");
-        delay(1000);
-        */
+        //RPC.call("updateDashM4", "'In state 2'");
 
         /*
-        Keep in mind that we will need to pull atmospheric air in first
+        We will need to pull atmospheric air in first
         Then make sure the values are level
         Then call calibrate functions
         */
 
+        // Turn the pump on to pull atm air into the sensing room
+        RPC.call("senseState", true, 101);
+
+        // Make sure that sensors have leveled
+        checkSensorLevel(101);
+
+        // Turn the pump off and callibrate the sensors
+        RPC.call("senseState", false, 101);
+
+        // The sensors should now be level and we can calibrate to atmospheric air
+        
+        // We should be making sure that the values being checked are near atm
+
         // RPC call to calibrate the sensors
         RPC.call("calibrateSensors");
-
-        delay(SIMULATE_CALIBRATION);
 
         // Calibration is no longer necessary
         calibrationNecessary = false;
@@ -221,10 +253,7 @@ void loop() {
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
 
-        /*
-        RPC.println("In M4 state 3");
-        delay(1000);
-        */
+        //RPC.call("updateDashM4", "'In state 3'");
 
         // Make RPC call to get room state
         int active = RPC.call("checkRoomActive", x).as<int>();
@@ -234,23 +263,52 @@ void loop() {
           // Make RPC call to turn pump on for the room
           RPC.call("senseState", true, x);
 
-          //checkSensorLevel();
-          delay(10000);
+          // Keep the pump on until the sensors have leveled
+          checkSensorLevel(x);
 
+          // Make RPC call to turn pump off for the room
           RPC.call("senseState", false, x);
 
           // Sensors should be level and we can now take measurements
 
-          // RPC call to evaluate the room based on sensor values
-          RPC.call("evaluate", x);
+          // Get oxygen value from sensor
+          float oxygenValue = RPC.call("getO2Reading").as<float>();
+
+          // Delay between reading values
+          delay(READ_VALUE_DELAY);
+
+          // Get carbon value from sensor
+          float carbonValue = RPC.call("getCO2Reading").as<float>();
+
+          // We should double check the state of the room and system before we evaluate
+          systemOn = RPC.call("systemOn").as<int>();
+          active = RPC.call("checkRoomActive", x).as<int>();
+          if (systemOn == 0) {
+            state = 4;
+          }
+          else if (active == 1) {
+            // RPC call to evaluate the room based on sensor values
+            RPC.call("evaluate", x, oxygenValue, carbonValue);
+          }
+          else {
+            // Cycle to the next room
+          }
         }
 
-        // Change room 
-        if (x == (NUM_ROOMS - 1)) {
-          x = 0;
-        }
-        else {
-          x++;
+        if (state != 4) {
+          // If just tested last room, set room to first room and wait between cycles
+          if (x == (NUM_ROOMS - 1)) {
+            x = 0;
+
+            state = 1;
+          }
+
+          // If not last room, increment room and go to admin state
+          else {
+            x++;
+
+            state = 1;
+          }
         }
 
         // Check if calibration is necessary
@@ -259,12 +317,6 @@ void loop() {
         }
         else {
           numTestsSinceCalibration++;
-        }
-
-        // Check to see if system power has been toggled off
-        if (state != 4) {
-          // Go to Administrative state
-          state = 1;
         }
       }
     break;
@@ -281,25 +333,40 @@ void loop() {
         // Set previousMillis for comparison later
         previousMillis = currentMillis;
 
-        /*
-        RPC.println("In M4 state 4");
-        delay(1000);
-        */
+        //RPC.call("updateDashM4", "'In state 4'");
 
-        // RPC to turn off all solenoids and pumps
-        RPC.call("standByState");
-
-        // RPC to get state of the system
+        // RPC to get state of the system for redundancy
         systemOn = RPC.call("systemOn").as<int>();
 
         while (systemOn == 0) {
           systemOn = RPC.call("systemOn").as<int>();
         }
 
+        // Go to administration state
+        state = 1;
+      }
+    break;
+
+    // "Wait between cycle" state *************************************************************************
+    // This state acts as a simple rest state where no sensing is necessary in any of the rooms but the
+    // system should still be active
+    case 5: 
+
+      // Set currentMillis
+      currentMillis = millis();
+
+      if ((currentMillis - previousMillis) >= TIMER_DELAY) {
+
+        // Set previousMillis for comparison later
+        previousMillis = currentMillis;
+
+        //delay(WAIT_DELAY * DELAY_1_MIN);
+
+        delay(1000);      // Temporary delay
+
         state = 1;
       }
     break;
   }
-
 }
 

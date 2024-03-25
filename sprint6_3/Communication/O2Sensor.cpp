@@ -32,18 +32,18 @@ O2Sensor::O2Sensor(){
 void O2Sensor::initialize(){
   //Serial2.print("FACTORY\r");
   Serial2.print("*OK,0\r");                                         //turn off OK responses
-  delay(500);
+  delay(10);
   Serial2.print("Plock,1\r");                                       //set the lock to UART only
-  delay(100);                                             
+  delay(10);                                             
   Serial2.print("C,0\r");                                           //switch to the polling state
-  delay(100);
+  delay(10);
   Serial2.flush();                                                  //flush the serial2 port
-  delay(100);                                                       //delay 100 ms
+  delay(10);                                                       //delay 100 ms
 
   float setupPercent = 0.00;                                        //initial percent value
   int setupComplete;
   while(setupComplete <= 3){                                        //keep asking for percentages until the value given is not 0 (trying to debug why this is happening)
-    Serial.println("waiting for setup");
+    //Serial.println("waiting for setup");
     setupPercent = getPercent();                                    //get percent
     if(setupPercent != 0.00){
       setupComplete ++;
@@ -65,14 +65,17 @@ void O2Sensor::initialize(){
  * returns nothing
  */
 void O2Sensor::calibrate(){
-  Serial2.write("Cal,20.90\r");                          //calibrate command
-  delay(5000);                                            //wait 5 seconds
+  Serial2.write("Cal,20.90\r");                           //calibrate command
+                                            
 
+  /*
+  delay(5000)                                             // wait 5 seconds
   float calibrateValue = getPercent();                    //take a reading after calibration
   while(calibrateValue < 20.0 || calibrateValue > 22.0){  //if its not around atmosphere, get another reading until it is whats expected
     delay(2000);                                          //wait 2 seconds if not correct percent
-    calibrateValue = getPercent();                         //get another value
+    calibrateValue = getPercent();                        //get another value
   }
+  */
 }
 
 /* CO2Sensor getPercent
@@ -92,8 +95,8 @@ float O2Sensor::getPercent(){
   // else{                                                                 //if ok not received, something is wrong
   //   //Serial.println("...(INFO): error getting percent");
   // }
-  Serial.print("in get percent  ");
-  Serial.println(_currentPercent);
+  //Serial.print("in get percent  ");
+  //Serial.println(_currentPercent);
   return _currentPercent;                                               //return percentage read from sensor
 }
 

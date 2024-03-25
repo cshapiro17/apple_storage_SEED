@@ -25,7 +25,7 @@
 /**
  * Define the pin connection for the atmospheric solenoid to the Arduino Giga R1 Wifi
  */
-#define SYSTEM_SOLENOID_PIN
+#define SYSTEM_SOLENOID_PIN 22
 
 /**
  * Define the number of rooms which are in the system
@@ -135,16 +135,17 @@
 /**
  * Delay definitions
  */
-#define TIMER_DELAY 1000
-#define RESET_DELAY 1000
-#define DASH_DELAY 1000
-#define PUMP_DELAY 10000
-#define CO2_CONNECT_DELAY 2000
-#define O2_CONNECT_DELAY 100
-
-#define SIMULATE_CALIBRATION 10000
-
-#define SECONDS_BETWEEN_CYCLE 1500
+#define TIMER_DELAY 1000                // Used in the state machine maintain good flow between states (should not need to modify)
+#define DASH_DELAY 1000                 // Used for better readability of dashboard status messages
+#define PUMP_DELAY 10                   // The amount of time that air is initially pumped in when filling the sensing environment with air (IN SECONDS)
+#define WAIT_DELAY 1                    // Time to wait between measurement cycles (IN MINUTES)
+#define READ_VALUE_DELAY 1000           // Time between reading values
+#define CALIBRATION_VALUE_DELAY 3       // Time that air is pumped in before a new value in the calibration state (IN SECONDS)
+#define CO2_CONNECT_DELAY 1000          // Delay after CO2 sensor is initialized in set up        
+#define O2_CONNECT_DELAY 1000           // Delay after O2 sensor is initialized in set up
+#define DELAY_1_SEC 1000                // One second delay constant
+#define DELAY_1_MIN 60000               // One minute delay constant
+#define SIMULATE_CALIBRATION 10000      // For software development
 
 
 #endif

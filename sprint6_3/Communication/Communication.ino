@@ -11,17 +11,17 @@
 // *************************************************************************
 
 // Create system object
-System VRS(SYSTEM_NAME, SYSTEM_PUMP_PIN, 0, NUM_ROOMS);
+System VRS(SYSTEM_NAME, SYSTEM_PUMP_PIN, 0, SYSTEM_SOLENOID_PIN, 0, NUM_ROOMS);
 
 //***************************************************************************
 // CREATE APPLES
 //*************************************************************************** 
 Apple TEST_APPLE("TEST_APPLE", 0, 0, 0, 0);
 
-// Apple objects being used for testing (These are not accurate numbers)
-Apple Honeycrisp("Honeycrisp", 3, 1, 2, 0);
-Apple Fuji("Fuji", 6, 4, 5, 3);
-Apple Mcintosh("Mcintosh", 9, 7, 8, 6);
+// Apple objects being used for testing (Defaults to 0 to test Node-Red sliders)
+Apple Honeycrisp("Honeycrisp", 0, 0, 0, 0);
+Apple Fuji("Fuji", 0, 0, 0, 0);
+Apple Mcintosh("Mcintosh", 0, 0, 0, 0);
 
 //***************************************************************************
 // CREATE ROOMS
@@ -194,6 +194,10 @@ int systemOn() {
  * Returns the state of the room
  */
 int checkRoomActive(int x) {
+  // If the "room" is the atmospheric solenoid than it will always be active
+  if (x == 101) {
+    return 1;
+  }
   
   // Return the state of the room
   if (VRS.rooms[x].isActive()) {
@@ -211,7 +215,7 @@ int checkRoomActive(int x) {
 void senseState(bool state, int room) {
 
   // Set pump to the value of state
-  VRS.pumpOn(state, VRS.rooms[room].getRoomNum() - 1);
+  VRS.pumpOn(state, room);
 
   if (state) {
     updateDashboard("'Pump turned on'");
@@ -220,25 +224,6 @@ void senseState(bool state, int room) {
     updateDashboard("'Pump turned off'");
   }
 
-}
-
-/* Function which turns off all solenoids and pumps to put the system in "Stand by" mode
- * Takes in nothing
- * Returns nothing
- */
-void standByState() {
-
-  // Make sure that everything is in "Stand by" mode by closing all solenoid valves
-  for (int i = 0; i < NUM_ROOMS; i++) {
-    VRS.rooms[i].setN2solState(0);
-    VRS.rooms[i].setO2fanState(0);
-    VRS.rooms[i].setSenseSolState(0);
-  }
-
-  // Turn off pump
-  VRS.setPumpState(0);
-
-  updateDashboard("'System in stand by mode'");
 }
 
 /* Function which calls the calibrate functions from the sensor libraries
@@ -250,7 +235,10 @@ void calibrateSensors() {
   // Call CO2 calibration function
   explorCO2.calibrate();
 
-  updateDashboard("'CO2 calibrated'");
+  // Call O2 calibration function
+  EZO2.calibrate();
+
+  updateDashboard("'Sensors calibrated'");
 }
 
 /* Function which returns the O2 reading from the RPC
@@ -273,13 +261,7 @@ float getCO2Reading() {
  * Takes in nothing
  * Returns nothing
  */
-void evaluate(int x) {
-
-  // Get oxygen value from sensor
-  oxygenValue = EZO2.getPercent();
-
-  // Get carbon dioxide value from sensor
-  carbonValue = explorCO2.getPercent();
+void evaluate(int x, float oxygenValue, float carbonValue) {
 
   // Get random temp because it is not implemented
   float roomTemp = random(25, 35);
@@ -293,6 +275,24 @@ void evaluate(int x) {
           
   // Report measurements to dashboard
   updateDashboard("'System OK'", "room" + String(x + 1), String(oxygenValue), String(carbonValue), String(roomTemp), String(oxygenFanState), String(nitrogenSolenoidState));
+}
+
+/* Function which turns the system off, can be called from the state machine
+ * Takes in nothing
+ * Returns nothing
+ */
+void turnSystemOff() {
+  VRS.setSystemState(false);
+
+  updateDashboard("'System turned off'");
+}
+
+/* Function which will allow the dashboard to be updated from the M4 Core
+ * Takes in a string holding the update
+ * Returns nothing
+ */
+void updateDashM4(String update) {
+  updateDashboard(update);
 }
 
 void setup() {
@@ -328,7 +328,7 @@ void setup() {
   // If room 3 is defined than set up room 3
   #ifdef ROOM_3_NAME
     VRS.addRoom(room3);                                                     // Add the room to the system
-// VRS.rooms[2].deactivate();                                               // Room shall be deactivated until activated in the dashboard
+    // VRS.rooms[2].deactivate();                                               // Room shall be deactivated until activated in the dashboard
 
     VRS.rooms[2].activate(); // For testing
 
@@ -412,11 +412,12 @@ void setup() {
   RPC.bind("systemOn", systemOn);
   RPC.bind("checkRoomActive", checkRoomActive);
   RPC.bind("senseState", senseState);
-  RPC.bind("standByState", standByState);
   RPC.bind("calibrateSensors", calibrateSensors);
   RPC.bind("getO2Reading", getO2Reading);
   RPC.bind("getCO2Reading", getCO2Reading);
   RPC.bind("evaluate", evaluate);
+  RPC.bind("turnSystemOff", turnSystemOff);
+  //RPC.bind("updateDashM4", updateDashM4);
 
   // Initiation sequence
   pinMode(LEDB, OUTPUT);
@@ -437,16 +438,8 @@ void setup() {
 // ********************************************************************************
 void loop() {
 
-  String buffer = "";
-  while (RPC.available()) {
-    buffer += (char)RPC.read();  // Fill the buffer with characters
-  }
-  if (buffer.length() > 0) {
-    Serial.println(buffer);
-  }
-
   // ------------------------------------------------------------------------------
-  // Check for Serial messages
+  // Check for Serial messages from Serial Monitor or Dashboard
   // ------------------------------------------------------------------------------
   if (Serial.available()) {
 
@@ -457,7 +450,16 @@ void loop() {
     int index = funcString.indexOf("_");
     String keyword = funcString.substring(0, index);
     String operation = funcString.substring(index + 1, funcString.length());
-    int room_num = operation.toInt();
+    int room_num;
+    String appleParams;
+
+    // Determine if the operation represents a room number or the apple parameters
+    if (operation.length() >= 7) {
+      appleParams = operation;
+    }
+    else {
+      room_num = operation.toInt();
+    }
 
     if (keyword == "honeycrisp") {
       VRS.rooms[room_num - 1].setAppleType(Honeycrisp);
@@ -491,13 +493,11 @@ void loop() {
       VRS.rooms[room_num - 1].activate();
 
       updateDashboard("'Room " + String(room_num) + " activated'");
-      delay(DASH_DELAY);
     }
     else if (keyword == "deactivateRoom") {
       VRS.rooms[room_num - 1].deactivate();
 
       updateDashboard("'Room " + String(room_num) + " deactivated'");
-      delay(DASH_DELAY);
     }
     else if (keyword == "oxygenSolOff") {
       VRS.rooms[room_num - 1].setO2fanState(0);
@@ -519,6 +519,13 @@ void loop() {
 
       updateDashboard("'Room " + String(room_num) + " nitrogen solenoid opened'");
     }
+    /*
+    else if (keyword == "modifyHoneycrisp") {
+      Honeycrisp.modifyAppleParams(appleParams);
+
+
+    }
+    */
 
     else {
       // Invalid input, something went wrong

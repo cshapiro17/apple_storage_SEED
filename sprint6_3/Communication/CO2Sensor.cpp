@@ -37,17 +37,19 @@ CO2Sensor::CO2Sensor(){
  */
 void CO2Sensor::initialize(){
   Serial1.write(writeCommandPolling);                       //switch to the polling state
-  delay(100);                                               //100 ms delay to allow process time
+  delay(10);                                               //100 ms delay to allow process time
   _pollState = getResponse(writeCommandPolling);            //record polling state, should always be 2
-  delay(1000);
-  Serial1.write(writeCommandFilter);                        //find the filter value
-  delay(100);                                               //100 ms delay to allow process time
+  //Serial.println(_pollState);
+  //delay(10);
+  //Serial1.write(writeCommandFilter);                        //find the filter value
+  delay(10);                                               //100 ms delay to allow process time
   _filterValue = getResponse(writeCommandFilter);           //record filter value
+  //Serial.println(_filterValue);  
   //Serial.print("filter: ");                                 // print filter value
   //Serial.println(_filterValue);
-  delay(1000);
+  delay(10);
   Serial1.write(writeCommandMultiplier);                    //find the multiplier
-  delay(100);                                               //100 ms delay to allow process time
+  delay(10);                                               //100 ms delay to allow process time
   _multiplier = getResponse(writeCommandMultiplier);        //record the multiplier value
   //Serial.print("multiplier: ");                             //print multiplier value
   //Serial.println(_multiplier);
@@ -60,9 +62,9 @@ void CO2Sensor::initialize(){
  */
 void CO2Sensor::calibrate(){
   Serial1.write(writeCommandCalibrate);                     //calibrate command
-  delay(2000);
+  delay(10);
   Serial1.write(writeCommandGetValue);                      //get CO2 value
-  delay(100);                                               //100 ms delay to allow process time       
+  delay(10);                                               //100 ms delay to allow process time       
   _calibrateValue = getResponse(writeCommandCalibrate);     //get the calibrate value, even though this number does not matter
   if(_calibrateValue*_multiplier <390 || _calibrateValue*_multiplier > 410){   //make sure it is around the expected value
     //Serial.println("error calibrating CO2 sensor");
@@ -78,7 +80,7 @@ void CO2Sensor::calibrate(){
  */
 int CO2Sensor::getPPM(){
   Serial1.write(writeCommandGetValue);
-  delay(100);                                               //100 ms delay to allow process time
+  delay(10);                                               //100 ms delay to allow process time
   _currentPPM = getResponse(writeCommandGetValue);          //get CO2 PPM
   return _currentPPM * _multiplier;                         //return PPM, needs to be multiplied by multiplier
 }

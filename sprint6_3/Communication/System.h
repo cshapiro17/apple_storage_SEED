@@ -19,6 +19,11 @@ struct Pump {
   int pumpState;
 };
 
+struct atmosphericSolenoid {
+  int atmSolPin;
+  int atmSolState;
+};
+
 class System {
   public:
 
@@ -26,7 +31,7 @@ class System {
     System();
 
     // Constructor
-    System(String systemName, int pumpPin, int pumpState, int numRooms);
+    System(String systemName, int pumpPin, int pumpState, int atmPin, int atmState, int numRooms);
 
     // Getters
     String getSystemName();
@@ -34,6 +39,8 @@ class System {
     int getPumpState();
     int getNumRooms();
     bool getSystemState();
+    int getAtmSolPin();
+    int getAtmSolState();
 
     // Setters
     void setSystemName(String systemName);
@@ -41,6 +48,8 @@ class System {
     void setPumpState(int);
     void setNumRooms(int);
     void setSystemState(bool);
+    void setAtmSolPin(int);
+    void setAtmSolState(int);
 
     // Function to add a room to the system
     void addRoom(Room newRoom);
@@ -66,6 +75,7 @@ class System {
     // Private fields
     String systemName;
     struct Pump sensingPump;
+    struct atmosphericSolenoid atmSol;
     int numRooms;
     bool systemOn;
 };
