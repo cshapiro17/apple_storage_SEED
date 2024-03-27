@@ -80,33 +80,29 @@ bool checkSensorLevel(int x) {
     }
   }
 
-  while (!sensorsLevel) {
-    // Fill the arrays
-    for (int i = 0; i < numMeasurements; i++) {
-      int roomActive = RPC.call("checkRoomActive", x).as<int>();
+  // Fill the arrays
+  for (int i = 0; i < numMeasurements; i++) {
+    int roomActive = RPC.call("checkRoomActive", x).as<int>();
 
-      if (roomActive == 0) {
-        exit = true;
+    if (roomActive == 0) {
+      exit = true;
 
-        return sensorsLevel;
-      }
-
-      o2Array[i] = RPC.call("getO2Reading").as<float>();
-
-      //RPC.println(o2Array[i]);
-
-      delay(500);
-
-      co2Array[i] = RPC.call("getCO2Reading").as<float>();
-
-      delay(500);
-
-      //RPC.println(co2Array[i]);
-
-      // Delay to allow for more air to pump in
-      delay(CALIBRATION_VALUE_DELAY * DELAY_1_SEC);
+      return sensorsLevel;
     }
 
+    o2Array[i] = RPC.call("getO2Reading").as<float>();
+
+    delay(1000);
+
+    co2Array[i] = RPC.call("getCO2Reading").as<float>();
+
+    delay(1000);
+
+    // Delay to allow for more air to pump in
+    delay(CALIBRATION_VALUE_DELAY * DELAY_1_SEC);
+  }
+
+  while (!sensorsLevel) {
     // Reset sums
     sumO2 = 0.0;
     sumCO2 = 0.0;
@@ -134,30 +130,38 @@ bool checkSensorLevel(int x) {
     sdO2 = sqrt(variationO2 / numMeasurements);
     sdCO2 = sqrt(variationCO2 / numMeasurements);
 
+  
     /*
     RPC.println("STDS");
+    delay(250);
     RPC.println(sdO2);
+    delay(250);
     RPC.println(sdCO2);
+    delay(250);
     */
 
     // Check to see if the oxygen sensor and carbon dioxide sensor are consistent
-    if(sdO2 < 0.5 && sdCO2 < 0.5){ 
+    if(sdO2 < 0.05 && sdCO2 < 0.05){ 
 
       // Sensors are level and while loop will break
       sensorsLevel = true;
       return sensorsLevel;
     }
-    /*
     else {
+
+      /*
+      RPC.println("Taking additional reading...");
+      delay(250);
+      */
       
       // Replace oldest value
       o2Array[oldestValue] = RPC.call("getO2Reading").as<float>();
 
-      delay(500);
+      delay(1000);
 
       co2Array[oldestValue] = RPC.call("getCO2Reading").as<float>();
 
-      delay(500);
+      delay(1000);
 
       // Oldest value is now next value in the array
       if (oldestValue == (numMeasurements - 1)) {
@@ -167,7 +171,6 @@ bool checkSensorLevel(int x) {
         oldestValue++;
       }
     }
-    */
   }
 }
 

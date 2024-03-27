@@ -150,14 +150,14 @@ void Apple::modifyAppleParams(String appleParams) {
   float lowO2f = lowO2.toFloat();
   setOxygenLowLevel(lowO2f);
 
-  remainingString = appleParams.substring(index + 1, remainingString.lenght());
+  remainingString = appleParams.substring(index + 1, remainingString.length());
 
   index = remainingString.indexOf("/");
   String highCO2 = remainingString.substring(0, index);
   float highCO2f = lowO2.toFloat();
   setCarbonHighLevel(highCO2f);
 
-  String lowCO2 = appleParams.substring(index + 1, remainingString.lenght());
+  String lowCO2 = appleParams.substring(index + 1, remainingString.length());
   float lowCO2f = lowCO2.toFloat();
   setCarbonLowLevel(lowCO2f);
 
