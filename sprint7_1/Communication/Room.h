@@ -96,6 +96,12 @@ class Room{
       // Getter for room name
       String getRoomName();
 
+      // Getter for current apple
+      String getCurrentApple();
+
+      // Setter for current apple
+      void setCurrentApple(String);
+
       // Public fields
       struct sensingSolenoid senseSol;
 
@@ -107,6 +113,7 @@ class Room{
       struct oxygenFan O2fan;
       struct nitrogenSolenoid N2sol;
       Apple appleType;
+      String currentApple;
       bool active;
       bool underTest;
     

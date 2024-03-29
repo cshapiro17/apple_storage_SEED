@@ -94,10 +94,10 @@ float CO2Sensor::getPercent(){
   delay(10);
   _currentPercent = _currentPPM / 10000.0;                  //convert to a percentage
 
-  /*
+
   Serial.print("CO2 ");
   Serial.println(_currentPercent);
-  */
+
   
   return _currentPercent;                                   //return percentage
 }

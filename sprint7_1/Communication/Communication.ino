@@ -488,17 +488,23 @@ void loop() {
     if (keyword == "honeycrisp") {
       VRS.rooms[room_num - 1].setAppleType(Honeycrisp);
 
+      VRS.rooms[room_num - 1].setCurrentApple("Honeycrisp");
+
       updateDashboard("'Room " + String(room_num) + " apple honeycrisp'");
       delay(DASH_DELAY);
     }
     else if (keyword == "fuji") {
       VRS.rooms[room_num - 1].setAppleType(Fuji);
 
+      VRS.rooms[room_num - 1].setCurrentApple("Fuji");
+
       updateDashboard("'Room " + String(room_num) + " apple fuji'");
       delay(DASH_DELAY);
     }
     else if (keyword == "mcintosh") {
       VRS.rooms[room_num - 1].setAppleType(Mcintosh);
+
+      VRS.rooms[room_num - 1].setCurrentApple("Mcintosh");
 
       updateDashboard("'Room " + String(room_num) + " apple mcintosh'");
       delay(DASH_DELAY);
@@ -545,12 +551,36 @@ void loop() {
     }
     else if (keyword == "modifyHoneycrisp") {
       Honeycrisp.modifyAppleParams(appleParams);
+
+      for (int i = 0; i < NUM_ROOMS; i++) {
+        if (VRS.rooms[i].getCurrentApple() == "Honeycrisp") {
+          VRS.rooms[i].setAppleType(Honeycrisp);
+        }
+      }
+
+      updateDashboard("'Honeycrisp modified to " + String(appleParams) + "'");
     }
     else if (keyword == "modifyFuji") {
       Fuji.modifyAppleParams(appleParams);
+
+      for (int i = 0; i < NUM_ROOMS; i++) {
+        if (VRS.rooms[i].getCurrentApple() == "Fuji") {
+          VRS.rooms[i].setAppleType(Fuji);
+        }
+      }
+
+      updateDashboard("'Fuji modified to " + String(appleParams) + "'");
     }
     else if (keyword == "modifyMcintosh") {
       Mcintosh.modifyAppleParams(appleParams);
+
+      for (int i = 0; i < NUM_ROOMS; i++) {
+        if (VRS.rooms[i].getCurrentApple() == "Mcintosh") {
+          VRS.rooms[i].setAppleType(Mcintosh);
+        }
+      }
+
+      updateDashboard("'Mcintosh modified to " + String(appleParams) + "'");
     }
     /*
     else if (keyword == "modifyCustom1") {

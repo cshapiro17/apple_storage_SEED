@@ -327,3 +327,19 @@ int Room::getSenseSolState() {
 String Room::getRoomName() {
   return roomName;
 }
+
+/* Function which gets the name of the apple being stored
+ * Takes in nothing
+ * Returns the name of the apple
+ */
+String Room::getCurrentApple() {
+  return currentApple;
+}
+
+/* Function which sets the name of the apple being stored
+ * Takes in a string representing the name of the apple being stored
+ * Returns nothing
+ */
+void Room::setCurrentApple(String appleName) {
+  currentApple = appleName;
+}

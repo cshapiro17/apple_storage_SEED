@@ -40,6 +40,11 @@
 #define CO2_SENSOR_TX_PIN 1
 
 /**
+ *  
+ */
+#define PRESSURE_SENSOR_PIN A0
+
+/**
  * Define the pins which connect to the O2 sensor
  */
 #define O2_SENSOR_PIN_1 A10

@@ -41,7 +41,7 @@ void CO2Sensor::initialize(){
   _pollState = getResponse(writeCommandPolling);            //record polling state, should always be 2
   //Serial.println(_pollState);
   //delay(10);
-  //Serial1.write(writeCommandFilter);                        //find the filter value
+  Serial1.write(writeCommandFilter);                        //find the filter value
   delay(10);                                               //100 ms delay to allow process time
   _filterValue = getResponse(writeCommandFilter);           //record filter value
   //Serial.println(_filterValue);  

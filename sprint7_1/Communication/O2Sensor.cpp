@@ -85,11 +85,10 @@ void O2Sensor::calibrate(){
 float O2Sensor::getPercent(){
   //Serial.println("In function percent");
   Serial2.print("R\r");                                                 //write to O2 sensor for a reading
-  _currentPercent = getResponse(writeCommandGetValue);  
-  /*                //convert to a percentage
-  Serial.print("Current Percent: ");
+  _currentPercent = getResponse(writeCommandGetValue);           //convert to a percentage
+  Serial.print("O2: ");
   Serial.println(_currentPercent);
-  */
+  
   //_SensorReady = getOK();                                               //get the *OK message to know response finished
   // if(_SensorReady == 1){                                                //make sure the OK was received from tester
   //   //Serial.println("...(INFO): percent obtained");

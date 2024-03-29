@@ -70,7 +70,16 @@ bool checkSensorLevel(int x) {
   for (int i = 0; i < PUMP_DELAY; i++) {
     int roomActive = RPC.call("checkRoomActive", x).as<int>();
 
+    int pressure = analogRead(A0);
+
     if (roomActive == 0) {
+      exit = true;
+
+      return sensorsLevel;
+    }
+    else if (pressure < 875) {
+      RPC.call("turnSystemOff");
+
       exit = true;
 
       return sensorsLevel;
@@ -84,7 +93,16 @@ bool checkSensorLevel(int x) {
   for (int i = 0; i < numMeasurements; i++) {
     int roomActive = RPC.call("checkRoomActive", x).as<int>();
 
+    int pressure = analogRead(A0);
+
     if (roomActive == 0) {
+      exit = true;
+
+      return sensorsLevel;
+    }
+    else if (pressure < 875) {
+      RPC.call("turnSystemOff");
+
       exit = true;
 
       return sensorsLevel;
@@ -131,14 +149,12 @@ bool checkSensorLevel(int x) {
     sdCO2 = sqrt(variationCO2 / numMeasurements);
 
   
-    /*
     RPC.println("STDS");
     delay(250);
     RPC.println(sdO2);
     delay(250);
     RPC.println(sdCO2);
     delay(250);
-    */
 
     // Check to see if the oxygen sensor and carbon dioxide sensor are consistent
     if(sdO2 < 0.05 && sdCO2 < 0.05){ 
@@ -149,19 +165,41 @@ bool checkSensorLevel(int x) {
     }
     else {
 
-      /*
       RPC.println("Taking additional reading...");
       delay(250);
-      */
       
       // Replace oldest value
       o2Array[oldestValue] = RPC.call("getO2Reading").as<float>();
 
-      delay(1000);
+      delay(500);
+
+      int pressure = analogRead(A0);
+
+      if (pressure < 875) {
+        RPC.call("turnSystemOff");
+
+        exit = true;
+
+        return sensorsLevel;
+      }
+
+      delay(500);
 
       co2Array[oldestValue] = RPC.call("getCO2Reading").as<float>();
 
-      delay(1000);
+      delay(500);
+
+      pressure = analogRead(A0);
+
+      if (pressure < 875) {
+        RPC.call("turnSystemOff");
+
+        exit = true;
+
+        return sensorsLevel;
+      }
+
+      delay(500);
 
       // Oldest value is now next value in the array
       if (oldestValue == (numMeasurements - 1)) {

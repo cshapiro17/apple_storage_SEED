@@ -141,24 +141,36 @@ void Apple::modifyAppleParams(String appleParams) {
   int index = appleParams.indexOf("/");
   String highO2 = appleParams.substring(0, index);
   float highO2f = highO2.toFloat();
+  Serial.print("high O2 ");
+  Serial.println(highO2f);
   setOxygenHighLevel(highO2f);
 
   String remainingString = appleParams.substring(index + 1, appleParams.length());
 
+  Serial.println(remainingString);
+
   index = remainingString.indexOf("/");
   String lowO2 = remainingString.substring(0, index);
   float lowO2f = lowO2.toFloat();
+  Serial.print("low O2 ");
+  Serial.println(lowO2f);
   setOxygenLowLevel(lowO2f);
 
-  remainingString = appleParams.substring(index + 1, remainingString.length());
+  remainingString = remainingString.substring(index + 1, remainingString.length());
+
+  Serial.println(remainingString);
 
   index = remainingString.indexOf("/");
   String highCO2 = remainingString.substring(0, index);
-  float highCO2f = lowO2.toFloat();
+  float highCO2f = highCO2.toFloat();
+  Serial.print("high cO2 ");
+  Serial.println(highCO2f);
   setCarbonHighLevel(highCO2f);
 
-  String lowCO2 = appleParams.substring(index + 1, remainingString.length());
+  String lowCO2 = remainingString.substring(index + 1, remainingString.length());
   float lowCO2f = lowCO2.toFloat();
+  Serial.print("low CO2 ");
+  Serial.println(lowCO2f);
   setCarbonLowLevel(lowCO2f);
 
   // Recalculate the margins for oxygen
