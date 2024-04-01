@@ -52,7 +52,7 @@ void O2Sensor::initialize(){
       setupComplete = 0;
     }
     //getOK();                                                        //get ok
-    delay(2000);                                                    //delay 1s before asking again
+    delay(2000);                                                    //delay 2s before asking again
   }
   //Serial.println("O2 Setup complete.");
   Serial2.flush();
@@ -83,21 +83,14 @@ void O2Sensor::calibrate(){
  * returns the percent of CO2 as a float
  */
 float O2Sensor::getPercent(){
-  //Serial.println("In function percent");
   Serial2.print("R\r");                                                 //write to O2 sensor for a reading
-  _currentPercent = getResponse(writeCommandGetValue);           //convert to a percentage
+  _currentPercent = getResponse(writeCommandGetValue);                  //get response from Sensor
+  
+  
   Serial.print("O2: ");
   Serial.println(_currentPercent);
   
-  //_SensorReady = getOK();                                               //get the *OK message to know response finished
-  // if(_SensorReady == 1){                                                //make sure the OK was received from tester
-  //   //Serial.println("...(INFO): percent obtained");
-  // }
-  // else{                                                                 //if ok not received, something is wrong
-  //   //Serial.println("...(INFO): error getting percent");
-  // }
-  //Serial.print("in get percent  ");
-  //Serial.println(_currentPercent);
+
   return _currentPercent;                                               //return percentage read from sensor
 }
 
@@ -120,8 +113,6 @@ float O2Sensor::getResponse(String command){
     //Serial.print("...(INFO): sensor String:   ");
   sensor_string_complete = false;  
   }
-  //Serial.print("In Get Response: ");
-  //Serial.println(_response);
   return _response.toFloat();                                       //return the full response
 }
 

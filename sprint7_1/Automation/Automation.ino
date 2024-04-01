@@ -72,12 +72,15 @@ bool checkSensorLevel(int x) {
 
     int pressure = analogRead(A0);
 
+    RPC.print("Pressure: ");
+    RPC.println(pressure);
+
     if (roomActive == 0) {
       exit = true;
 
       return sensorsLevel;
     }
-    else if (pressure < 875) {
+    else if (pressure < 870) {
       RPC.call("turnSystemOff");
 
       exit = true;
@@ -94,13 +97,16 @@ bool checkSensorLevel(int x) {
     int roomActive = RPC.call("checkRoomActive", x).as<int>();
 
     int pressure = analogRead(A0);
+  
+    RPC.print("Pressure: ");
+    RPC.println(pressure);
 
     if (roomActive == 0) {
       exit = true;
 
       return sensorsLevel;
     }
-    else if (pressure < 875) {
+    else if (pressure < 870) {
       RPC.call("turnSystemOff");
 
       exit = true;
@@ -148,16 +154,17 @@ bool checkSensorLevel(int x) {
     sdO2 = sqrt(variationO2 / numMeasurements);
     sdCO2 = sqrt(variationCO2 / numMeasurements);
 
-  
+    
     RPC.println("STDS");
     delay(250);
     RPC.println(sdO2);
     delay(250);
     RPC.println(sdCO2);
     delay(250);
+    
 
     // Check to see if the oxygen sensor and carbon dioxide sensor are consistent
-    if(sdO2 < 0.05 && sdCO2 < 0.05){ 
+    if(sdO2 < 0.02 && sdCO2 < 0.02){ 
 
       // Sensors are level and while loop will break
       sensorsLevel = true;
@@ -166,7 +173,7 @@ bool checkSensorLevel(int x) {
     else {
 
       RPC.println("Taking additional reading...");
-      delay(250);
+      delay(500);
       
       // Replace oldest value
       o2Array[oldestValue] = RPC.call("getO2Reading").as<float>();
@@ -175,7 +182,22 @@ bool checkSensorLevel(int x) {
 
       int pressure = analogRead(A0);
 
-      if (pressure < 875) {
+      delay(250);
+
+      int roomActive = RPC.call("checkRoomActive", x).as<int>();
+
+      delay(250);
+
+      RPC.print("Pressure: ");
+      RPC.println(pressure);
+
+      if (roomActive == 0) {
+        exit = true;
+
+        return sensorsLevel;
+      }
+
+      else if (pressure < 870) {
         RPC.call("turnSystemOff");
 
         exit = true;
@@ -191,7 +213,23 @@ bool checkSensorLevel(int x) {
 
       pressure = analogRead(A0);
 
-      if (pressure < 875) {
+      delay(250);
+
+      roomActive = RPC.call("checkRoomActive", x).as<int>();
+
+      delay(250);
+
+      RPC.print("Pressure: ");
+      RPC.println(pressure);
+
+      delay(250);
+
+      if (roomActive == 0) {
+        exit = true;
+
+        return sensorsLevel;
+      }
+      else if (pressure < 870) {
         RPC.call("turnSystemOff");
 
         exit = true;
