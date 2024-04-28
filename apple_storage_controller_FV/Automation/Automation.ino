@@ -2,6 +2,12 @@
 // The M4 core does not have access to serial ports which means that RPCs are 
 // needed to get sensor values
 
+/*
+  This program acts as the state machine which controls the apple storage controller.
+  By communicating with the M7 core, it will respond to changes in system and room states
+  as it steps through the state machine.
+*/
+
 #include <Arduino.h>
 
 #include "MillisTimerLib.h"
