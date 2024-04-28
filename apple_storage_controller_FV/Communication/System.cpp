@@ -1,6 +1,11 @@
 // M7
 // Cpp for the System class
 
+/*
+  Code for the control of the system objects. Has getters, setters, and other functions which 
+  define the variables for system objects.
+*/
+
 #include <Arduino.h>
 #include "System.h"
 using namespace std;

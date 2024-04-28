@@ -1,6 +1,10 @@
 // M7
 // Header for the System class
 
+/*
+  Code which declares all functions and variables for the System class
+*/
+
 #ifndef System_h
 #define System_h
 

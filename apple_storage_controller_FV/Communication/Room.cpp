@@ -1,6 +1,11 @@
 // M7
 // Cpp for Room class
 
+/*
+  Code for the control of the room objects. Has getters, setters, and other functions which 
+  define the variables for room objects.
+*/
+
 #include "Room.h"
 #include <Arduino.h>
 using namespace std;

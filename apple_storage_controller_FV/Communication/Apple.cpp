@@ -1,6 +1,10 @@
 // M7
 // Cpp for Apple class
 
+/*
+  Code which declares all functions and variables for the Apple class
+*/
+
 #include "Apple.h"
 using namespace std;
 

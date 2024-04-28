@@ -1,6 +1,10 @@
 // M7
 // Header for the Room class
 
+/*
+  Code which declares all functions and variables for the Room class
+*/
+
 #ifndef Room_h
 #define Room_h
 #include <Arduino.h>

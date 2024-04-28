@@ -1,6 +1,11 @@
 // M7
 // Header for Apple class
 
+/*
+  Code which contains all functions for the Apple class. These include getters, setters, and
+  parameter modifiers
+*/
+
 #ifndef Apple_h
 #define Apple_h
 

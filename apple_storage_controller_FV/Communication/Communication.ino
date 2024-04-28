@@ -1,5 +1,9 @@
 // USES M7 CORE
 
+/*
+  Code which communicates with the Raspberry Pi and state machine code to modify the system
+*/
+
 #include "C:\Users\Cmsha\OneDrive - University of Vermont\Semester 8\Capstone\apple_storage_SEED\apple_storage_SEED\apple_storage_controller_NO_O2\Config.h"
 #include "System.h"
 #include "CO2Sensor.h"
@@ -743,4 +747,4 @@ void loop() {
 
 
 
-
+
