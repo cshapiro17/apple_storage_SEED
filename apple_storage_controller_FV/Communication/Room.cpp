@@ -17,9 +17,10 @@ Room::Room() : roomNum(0), appleType() {
 
 
 // Constructor
-Room::Room(String roomName, int roomNum, Apple appleType, int o2FanPin, int n2SolenoidPin, int senseSolenoidPin, int o2FanState, int n2SolenoidState, int senseSolenoidState) {
+Room::Room(String roomName, int roomNum, int volume, Apple appleType, int o2FanPin, int n2SolenoidPin, int senseSolenoidPin, int o2FanState, int n2SolenoidState, int senseSolenoidState) {
   setRoomName(roomName);
   setRoomNum(roomNum);
+  setRoomVolume(volume);
 	setAppleType(appleType, "Default");
   setOxygenFanPin(o2FanPin);
   setNitrogenSolenoidPin(n2SolenoidPin);
@@ -132,6 +133,14 @@ boolean Room::isActive(){
  */
 void Room::setRoomNum(int RoomNum){
 	roomNum = RoomNum;
+}
+
+/* Setter for room volume
+ * Takes in an integer representing the volume of the room in cubic feet
+ * Returns nothing
+ */
+void Room::setRoomVolume(int volume) {
+  roomVolume = volume;
 }
 
 /* Setter for the oxygen input solenoid pin
@@ -255,6 +264,14 @@ int Room::getOxygenFanPin() {
  */
 int Room::getRoomNum() {
   return roomNum;
+}
+
+/* Getter for room volume
+ * Takes in nothing
+  * Returns the volume of the room
+  */
+int Room::getRoomVolume() {
+  return roomVolume;
 }
 
 /*

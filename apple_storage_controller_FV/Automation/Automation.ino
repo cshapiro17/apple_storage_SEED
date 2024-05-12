@@ -11,7 +11,7 @@
 #include <Arduino.h>
 
 #include "MillisTimerLib.h"
-#include "C:\Users\Cmsha\OneDrive - University of Vermont\Semester 8\Capstone\apple_storage_SEED\apple_storage_SEED\apple_storage_controller_NO_O2\Config.h"
+#include "C:\Users\Cmsha\OneDrive - University of Vermont\Semester 8\Capstone\apple_storage_SEED\apple_storage_SEED\apple_storage_controller_FV\Config.h"
 #include <RPC.h>
 
 #include <cmath>
@@ -440,7 +440,7 @@ void loop() {
       currentMillis = millis();
 
       // Will want to use the millisTimer to delay this state instead of delay func
-      if ((currentMillis - previousMillis) >= 5000) {
+      if ((currentMillis - previousMillis) >= (WAIT_DELAY * DELAY_1_MIN)) {
 
         // Set previousMillis for comparison later
         previousMillis = currentMillis;

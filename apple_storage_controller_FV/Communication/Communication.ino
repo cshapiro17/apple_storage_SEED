@@ -4,11 +4,13 @@
   Code which communicates with the Raspberry Pi and state machine code to modify the system
 */
 
-#include "C:\Users\Cmsha\OneDrive - University of Vermont\Semester 8\Capstone\apple_storage_SEED\apple_storage_SEED\apple_storage_controller_NO_O2\Config.h"
+#include "C:\Users\Cmsha\OneDrive - University of Vermont\Semester 8\Capstone\apple_storage_SEED\apple_storage_SEED\apple_storage_controller_FV\Config.h"
 #include "System.h"
 #include "CO2Sensor.h"
 #include "O2Sensor.h"
 #include <RPC.h>
+
+#include "MillisTimerLib.h"
 
 // *************************************************************************
 // GLOBAL SYSTEM VARIABLES
@@ -23,12 +25,12 @@ System VRS(SYSTEM_NAME, SYSTEM_PUMP_PIN, 0, SYSTEM_SOLENOID_PIN, 0, NUM_ROOMS);
 Apple DEFAULT("Default", 0, 0, 0, 0);
 
 // Apple objects being used for testing (Defaults to 0 to test Node-Red sliders)
-Apple Cortland("Cortland", 0, 0, 0, 0);
-Apple Empire("Empire", 0, 0, 0, 0);
-Apple Gala("Gala", 0, 0, 0, 0);
-Apple Honeycrisp("Honeycrisp", 0, 0, 0, 0);
-Apple Macoun("Macoun", 0, 0, 0, 0);
-Apple Mcintosh("Mcintosh", 0, 0, 0, 0);
+Apple Cortland("Cortland", 3.0, 2.5, 0.8, 0.8);
+Apple Empire("Empire", 2.5, 2.0, 0.8, 0.8);
+Apple Gala("Gala", 2.5, 2.0, 0.8, 0.8);
+Apple Honeycrisp("Honeycrisp", 4.0, 3.5, 0.8, 0.8);
+Apple Macoun("Macoun", 3.0, 2.5, 0.8, 0.8);
+Apple Mcintosh("Mcintosh", 3.0, 2.5, 0.8, 0.8);
 
 // Custom Apples
 Apple Custom1("Custom1", 0, 0, 0, 0);
@@ -44,32 +46,32 @@ Apple Custom6("Custom6", 0, 0, 0, 0);
 //***************************************************************************
 // If room 1 is defined than set up room 1
 #ifdef ROOM_1_NAME
-  Room room1(ROOM_1_NAME, 1, DEFAULT, R1_O2_FAN_PIN, R1_N2_SOLENOID_PIN, R1_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room1(ROOM_1_NAME, 1, ROOM_1_VOLUME, DEFAULT, R1_O2_FAN_PIN, R1_N2_SOLENOID_PIN, R1_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 2 is defined than set up room 2
 #ifdef ROOM_2_NAME
-  Room room2(ROOM_2_NAME, 2, DEFAULT, R2_O2_FAN_PIN, R2_N2_SOLENOID_PIN, R2_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room2(ROOM_2_NAME, 2, ROOM_2_VOLUME, DEFAULT, R2_O2_FAN_PIN, R2_N2_SOLENOID_PIN, R2_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 3 is defined than set up room 3
 #ifdef ROOM_3_NAME
-  Room room3(ROOM_3_NAME, 3, DEFAULT, R3_O2_FAN_PIN, R3_N2_SOLENOID_PIN, R3_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room3(ROOM_3_NAME, 3, ROOM_3_VOLUME, DEFAULT, R3_O2_FAN_PIN, R3_N2_SOLENOID_PIN, R3_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 4 is defined than set up room 4
 #ifdef ROOM_4_NAME
-  Room room4(ROOM_4_NAME, 4, DEFAULT, R4_O2_FAN_PIN, R4_N2_SOLENOID_PIN, R4_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room4(ROOM_4_NAME, 4, ROOM_4_VOLUME, DEFAULT, R4_O2_FAN_PIN, R4_N2_SOLENOID_PIN, R4_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 5 is defined than set up room 5
 #ifdef ROOM_5_NAME
-  Room room5(ROOM_5_NAME, 5, DEFAULT, R5_O2_FAN_PIN, R5_N2_SOLENOID_PIN, R5_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room5(ROOM_5_NAME, 5, ROOM_5_VOLUME, DEFAULT, R5_O2_FAN_PIN, R5_N2_SOLENOID_PIN, R5_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 // If room 6 is defined than set up room 6
 #ifdef ROOM_6_NAME
-  Room room6(ROOM_6_NAME, 6, DEFAULT, R6_O2_FAN_PIN, R6_N2_SOLENOID_PIN, R6_SENSING_SOLENOID_PIN, 0, 0, 0);
+  Room room6(ROOM_6_NAME, 6, ROOM_6_VOLUME, DEFAULT, R6_O2_FAN_PIN, R6_N2_SOLENOID_PIN, R6_SENSING_SOLENOID_PIN, 0, 0, 0);
 #endif
 
 //****************************************************************************
@@ -85,6 +87,26 @@ float oxygenValue;
 float currentO2;
 float previousO2;
 O2Sensor EZO2;
+
+//****************************************************************************
+// TIMER VARIABLES
+//****************************************************************************
+// Initialize the variables for storing fan time variables
+unsigned long r1fanTime = 0;
+unsigned long r2fanTime = 0;
+unsigned long r3fanTime = 0;
+unsigned long r4fanTime = 0;
+unsigned long r5fanTime = 0;
+unsigned long r6fanTime = 0;
+
+// Initialize the variables for time tracking
+unsigned long currentMillis = 0;
+unsigned long millisAtR1set = 0;
+unsigned long millisAtR2set = 0;
+unsigned long millisAtR3set = 0;
+unsigned long millisAtR4set = 0;
+unsigned long millisAtR5set = 0;
+unsigned long millisAtR6set = 0;
 
 //***************************************************************************
 // DATA COLLECTION AND STORAGE
@@ -310,6 +332,12 @@ void evaluate(int x, float oxygenValue, float carbonValue) {
 
   // Get the states of each solenoid
   int oxygenFanState = VRS.rooms[x].getO2fanState();
+
+  // Set the value for how long the oxygen fan must stay on for
+  if (oxygenFanState == 1) {
+    setO2fanTime(x, oxygenValue);
+  }
+
   int nitrogenSolenoidState = VRS.rooms[x].getN2solState();
           
   // Report measurements to dashboard
@@ -341,6 +369,51 @@ int allRoomsDeactivated() {
   
   // If none are active
   return 1;
+}
+
+/* Function which calculates how long to turn an O2 fan on based on room size, O2 measurement,
+ * apple type, and fan strength
+ * Takes in a room and measured oxygen value
+ * Return nothing
+ */
+void setO2fanTime(int x, float measuredO2) {
+  Apple roomAppleType = VRS.rooms[x].getAppleType();
+  int volume = VRS.rooms[x].getRoomVolume();
+  float desiredO2 = roomAppleType.getOxygenHighMargin();
+
+  if (x == 0) {
+    r1fanTime = ( ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) ) * 60 * 1000;
+
+    millisAtR1set = millis();
+  }
+  else if (x == 1) {
+    r2fanTime = ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) * 60 * 1000;
+
+    millisAtR2set = millis();
+  }
+  else if (x == 2) {
+    r3fanTime = ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) * 60 * 1000;
+  
+    millisAtR3set = millis();
+  }
+  else if (x == 3) {
+    r4fanTime = ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) * 60 * 1000;
+  
+    millisAtR4set = millis();
+  }
+  else if (x == 4) {
+    r5fanTime = ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) * 60 * 1000;
+
+    millisAtR5set = millis();
+  }
+  else if (x == 5) {
+    r6fanTime = ( (desiredO2 * volume) - (measuredO2 * volume) ) / ( (FAN_CFM * ATM_O2) - (FAN_CFM * measuredO2) ) * 60 * 1000;
+
+    millisAtR6set = millis();
+  }
+  else {
+    // Do nothing
+  }
 }
 
 void setup() {
@@ -484,6 +557,7 @@ void setup() {
 // ********************************************************************************
 void loop() {
 
+  /* ONLY NEEDED FOR PRINTING FROM M4
   // Check for RPC.print statements from the M4
   String buffer = "";
   while (RPC.available()) {
@@ -491,6 +565,52 @@ void loop() {
   }
   if (buffer.length() > 0) {
     Serial.print(buffer);
+  }
+  */
+
+  // ------------------------------------------------------------------------------
+  // Check if fans need to be turned off because they have been on for their set time
+  // ------------------------------------------------------------------------------
+  currentMillis = millis();
+
+  if (r1fanTime != 0 && ( (currentMillis - millisAtR1set) > r1fanTime) ) {
+    r1fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[0].setO2fanState(0);
+  }
+  else if (r2fanTime != 0 && ( (currentMillis - millisAtR2set) > r2fanTime) ) {
+    r2fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[1].setO2fanState(0);
+  }
+  else if (r3fanTime != 0 && ( (currentMillis - millisAtR3set) > r3fanTime) ) {
+    r3fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[2].setO2fanState(0);
+  }
+  else if (r4fanTime != 0 && ( (currentMillis - millisAtR4set) > r4fanTime) ) {
+    r4fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[3].setO2fanState(0);
+  }
+  else if (r5fanTime != 0 && ( (currentMillis - millisAtR5set) > r5fanTime) ) {
+    r5fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[4].setO2fanState(0);
+  }
+  else if (r6fanTime != 0 && ( (currentMillis - millisAtR6set) > r6fanTime) ) {
+    r6fanTime = 0;
+
+    // Turn the fan off is time has elapsed
+    VRS.rooms[5].setO2fanState(0);
+  }
+  else {
+    // Do nothing
   }
 
   // ------------------------------------------------------------------------------
@@ -517,6 +637,7 @@ void loop() {
       room_num = operation.toInt();
     }
 
+    // Set apple type
     if (keyword == "honeycrisp") {
       VRS.rooms[room_num - 1].setAppleType(Honeycrisp, "Honeycrisp");
 
@@ -547,6 +668,38 @@ void loop() {
 
       updateDashboard("'Room " + String(room_num) + " gala'", "NA", "NA", "NA", "NA", "NA", "NA");
     }
+    else if (keyword == "custom1") {
+      VRS.rooms[room_num - 1].setAppleType(Custom1, "Custom1");
+
+      updateDashboard("'Room " + String(room_num) + " custom1'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "custom2") {
+      VRS.rooms[room_num - 1].setAppleType(Custom2, "Custom2");
+
+      updateDashboard("'Room " + String(room_num) + " custom2'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "custom3") {
+      VRS.rooms[room_num - 1].setAppleType(Custom3, "Custom3");
+
+      updateDashboard("'Room " + String(room_num) + " custom3'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "custom4") {
+      VRS.rooms[room_num - 1].setAppleType(Custom4, "Custom4");
+
+      updateDashboard("'Room " + String(room_num) + " custom4'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "custom5") {
+      VRS.rooms[room_num - 1].setAppleType(Custom5, "Custom5");
+
+      updateDashboard("'Room " + String(room_num) + " custom5'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "custom6") {
+      VRS.rooms[room_num - 1].setAppleType(Custom6, "Custom6");
+
+      updateDashboard("'Room " + String(room_num) + " custom6'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+
+    // System control
     else if (keyword == "systemOn") {
       VRS.setSystemState(true);
 
@@ -567,10 +720,12 @@ void loop() {
 
       updateDashboard("'Room " + String(room_num) + " deactivated'", "NA", "NA", "NA", "NA", "NA", "NA");
     }
+
+    // System control of O2 fan and N2 solenoid
     else if (keyword == "oxygenSolOff") {
       VRS.rooms[room_num - 1].setO2fanState(0);
 
-      updateDashboard("'Room " + String(room_num) + " oxygen solenoid closed'", "NA", "NA", "NA", "NA", "NA", "NA");
+      updateDashboard("'Room " + String(room_num) + " oxygen fan off'", "NA", "NA", "NA", "NA", "NA", "NA");
     }
     else if (keyword == "nitrogenSolOff") {
       VRS.rooms[room_num - 1].setN2solState(0);
@@ -587,7 +742,7 @@ void loop() {
       VRS.rooms[room_num - 1].setO2fanState(1);
       VRS.rooms[room_num - 1].setN2solState(0); // In this set up, if the O2 is on than the N2 is not on
 
-      updateDashboard("'Room " + String(room_num) + " oxygen solenoid opened'", "NA", "NA", "NA", "NA", "NA", "NA");
+      updateDashboard("'Room " + String(room_num) + " oxygen fan opened'", "NA", "NA", "NA", "NA", "NA", "NA");
     }
     else if (keyword == "nitrogenSolOn") {
       VRS.rooms[room_num - 1].setN2solState(1);
@@ -601,6 +756,35 @@ void loop() {
 
       updateDashboard("'Room " + String(room_num) + " fan and sol on'", "NA", "NA", "NA", "NA", "NA", "NA");
     }
+
+    // New functions not in Node-Red yet
+
+    // When the user switches on a fan or solenoid manually
+    else if (keyword == "manualSwitchO2on") {
+      VRS.rooms[room_num - 1].setN2solState(0);
+      VRS.rooms[room_num - 1].setO2fanState(1);
+
+      updateDashboard("'Room " + String(room_num) + " oxygen fan on'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "manualSwitchO2off") {
+      VRS.rooms[room_num - 1].setO2fanState(0);
+
+      updateDashboard("'Room " + String(room_num) + " oxygen fan off'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "manualSwitchN2off") {
+      VRS.rooms[room_num - 1].setN2solState(0);
+
+      updateDashboard("'Room " + String(room_num) + " nitrogen solenoid closed'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else if (keyword == "manualSwitchN2on") {
+      VRS.rooms[room_num - 1].setN2solState(1);
+      VRS.rooms[room_num - 1].setO2fanState(0);
+
+      updateDashboard("'Room " + String(room_num) + " nitrogen solenoid opened'", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    // End new functions
+
+    // Modify apple parameters
     else if (keyword == "modifyHoneycrisp") {
       Honeycrisp.modifyAppleParams(appleParams);
 

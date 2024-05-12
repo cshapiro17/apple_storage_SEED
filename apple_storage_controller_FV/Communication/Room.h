@@ -35,7 +35,7 @@ class Room{
       Room();
   
       // Constructor
-      Room(String roomName, int roomNum, Apple appleType, int o2FanPin, int n2SolenoidPin, int senseSolenoidPin, int o2FanState, int n2SolenoidState, int senseSolenoidState);
+      Room(String roomName, int roomNum, int roomVolume, Apple appleType, int o2FanPin, int n2SolenoidPin, int senseSolenoidPin, int o2FanState, int n2SolenoidState, int senseSolenoidState);
 
       // Activates the room
       void activate();
@@ -63,9 +63,15 @@ class Room{
   
       // Setter for room number
       void setRoomNum(int);
+
+      // Setter for room volume
+      void setRoomVolume(int);
   
       // Getter for room number
       int getRoomNum();
+
+      // Getter for room volume
+      int getRoomVolume();
 
       // Setter for apple type
       void setAppleType(Apple, String);
@@ -111,6 +117,7 @@ class Room{
       // Private fields
       String roomName;
       int roomNum;
+      int roomVolume;
       struct oxygenFan O2fan;
       struct nitrogenSolenoid N2sol;
       Apple appleType;

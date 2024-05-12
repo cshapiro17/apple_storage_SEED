@@ -34,6 +34,16 @@
 #define NUM_ROOMS 6
 
 /**
+ * Define the strength of the oxygen fan in terms of cubic feet per minute
+ */
+#define FAN_CFM 35
+
+/**
+ * Define the "normal" percentage of oxygen in the atmosphere
+ */
+#define ATM_O2 20.95
+
+/**
  * Define the pins which connect to the CO2 sensor
  */
 #define CO2_SENSOR_RX_PIN 0
@@ -141,12 +151,22 @@
 #define CYCLES_PER_CALIBRATION 5
 
 /**
+ * Define the volumes for the various rooms
+ */
+#define ROOM_1_VOLUME 10000
+#define ROOM_2_VOLUME 10000
+#define ROOM_3_VOLUME 18700
+#define ROOM_4_VOLUME 18700
+#define ROOM_5_VOLUME 38500
+#define ROOM_6_VOLUME 38500
+
+/**
  * Delay definitions
  */
 #define TIMER_DELAY 1000                // Used in the state machine maintain good flow between states (should not need to modify)
 #define DASH_DELAY 1000                 // Used for better readability of dashboard status messages
 #define PUMP_DELAY 10                   // The amount of time that air is initially pumped in when filling the sensing environment with air (IN SECONDS)
-#define WAIT_DELAY 1                    // Time to wait between measurement cycles (IN MINUTES)
+#define WAIT_DELAY 120                    // Time to wait between measurement cycles (IN MINUTES)
 #define READ_VALUE_DELAY 50             // Time between reading values
 #define CALIBRATION_VALUE_DELAY 10      // Time that air is pumped in before a new value in the calibration state (IN SECONDS)
 #define CO2_CONNECT_DELAY 1000          // Delay after CO2 sensor is initialized in set up        
